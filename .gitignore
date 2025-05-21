@@ -1,0 +1,21 @@
+# 忽略可执行文件
+*.exe
+*.out
+
+# 忽略所有日志文件
+*.log
+
+# 忽略系统文件
+.DS_Store
+Thumbs.db
+
+
+# 忽略依赖目录
+node_modules/
+vendor/
+
+# 忽略 IDE 配置文件
+.vscode/
+
+# 忽略其他文件
+.vimrc
