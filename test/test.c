@@ -7,25 +7,10 @@
 
 #include <stdio.h>
 
-int p;
-void f1()
-{
-  printf("%d\n",p);
-  printf("%d\n",q);
-}
-
-int q;
-void f2()
-{
-  printf("%d\n",p);
-  printf("%d\n",q);
-  printf("%d\n",w);
-}
-int w;
-
 int main(int argc,char *argv[])
 {
-  f1();
-  f2();
-  return 0;
+  char *str = "I love you";
+  printf("%s",str);
+  str[0] = 'n'; // 危险操作！运行时可能崩溃（gcc会警告）
+  printf("%s",str);
 }
