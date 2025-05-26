@@ -31,7 +31,7 @@ int my_mommove(char *src,char *dest,int len)
 
 int main(int argc,char *argv[])
 {
-    int arr[]={1,4,8,0,1};
+    double arr[]={1.1,4.1,8.1,0,1.2};
     int len=sizeof(arr),num=len/sizeof(arr[0]);//记录的是字节数
     char *copy_arr=malloc(len);
     int flag=my_mommove((char*)arr,copy_arr,len);
@@ -41,7 +41,7 @@ int main(int argc,char *argv[])
         int i=0;
         for(i=0;i<num;i++)
         {
-            printf("%d ",*((int *)(copy_arr)+i));
+            printf("%lf ",*((double *)(copy_arr)+i));
         }
         printf("\n");
     }else{

@@ -1,0 +1,32 @@
+# .prettierrc
+# Prettier 配置文档：https://prettier.io/docs/en/options.html
+
+# 通用格式化规则
+printWidth: 150 # 单行最大宽度（推荐 80-120）
+tabWidth: 2 # 缩进空格数
+useTabs: false # 使用空格代替制表符
+semi: false # 不需要分号结尾
+singleQuote: true # 使用单引号（会自动识别需要双引号的情况）
+quoteProps: 'as-needed' # 对象属性仅在需要时添加引号
+trailingComma: 'es5' # 尾部逗号规则：ES5 标准（对象/数组最后一项加逗号）
+bracketSpacing: true # 对象括号间保留空格：{ foo: bar }
+arrowParens: 'always' # 箭头函数参数始终加括号：(x) => x
+endOfLine: 'auto' # 自动识别换行符（LF/CRLF）
+
+# Markdown 专用规则
+proseWrap: 'always' # 保持 markdown 段落换行（重要！保持可读性）
+overrides:
+  - files: '*.md'
+    options:
+      embeddedLanguageFormatting: 'off' # 不格式化代码块中的代码（保持原样）
+      # 以下为 markdown 表格格式化规则
+      # 安装插件：npm install --save-dev @prettier/plugin-markdown
+      # （Prettier 3.0+ 已内置 markdown 支持）
+      markdownTextWrap: 'preserve' # 保持文本原样换行
+      # 表格格式化配置
+      # tableAutoWrap: false             # 禁止自动换行表格内容
+      # tableCellPadding: 1               # 表格单元格内边距
+      # tableColumnAlignment: 'left'      # 表格列对齐方式
+
+# 特殊文件类型处理
+mdxEmbeddedLanguageFormatting: 'off' # 关闭 MDX 文件中的嵌入式语言格式化
