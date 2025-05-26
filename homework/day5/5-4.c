@@ -5,45 +5,37 @@
 */
 #include <stdio.h>
 
-int main()
-{
-    int pay_price,num,price;
+int main() {
+    int num, price;
     printf("请输入站数：\n");
-    scanf("%d",&num);
-    if(num<=6) price=2;
-    else if(num<=10) price=3;
-    else price=4;
-    printf("应支付金额为:%d\n请支付！\n",price);
-    scanf("%d",&pay_price);
-    if(pay_price==num) printf("无需找零！\n");
-    else if(pay_price<num) printf("支付金额不足\n");
-    else{
-        // 找零
-        int tmp=pay_price-price;
-        printf("找零金额为:%d\n",tmp);
-        if(tmp>100){
-            printf("找零100元，%d张\n",tmp/100);
-            tmp%=100;
-        }
-        if(tmp>50){
-            printf("找零50元，%d张\n",tmp/50);
-            tmp%=50;
-        }
-        if(tmp>20){
-            printf("找零20元，%d张\n",tmp/20);
-            tmp%=20;
-        }
-        if(tmp>10){
-            printf("找零10元，%d张\n",tmp/10);
-            tmp%=10;
-        }
-        if(tmp>5){
-            printf("找零5元，%d张\n",tmp/5);
-            tmp%=5;
-        }
-        if(tmp>1){
-            printf("找零1元，%d张\n",tmp/1);
-            tmp%=1;
+    scanf("%d", &num);
+    
+    // 票价计算
+    if (num <= 6) price = 2;
+    else if (num <= 10) price = 3;
+    else price = 4;
+    
+    printf("应支付金额为:%d元\n请支付：\n", price);
+    int pay_amount;
+    scanf("%d", &pay_amount);
+    
+    // 支付校验
+    if (pay_amount == price) {
+        printf("无需找零！\n");
+    } else if (pay_amount < price) {
+        printf("支付金额不足\n");
+    } else {
+        int change = pay_amount - price;
+        printf("找零金额为:%d元\n", change);
+        
+        // 面额数组按从大到小排列
+        int denominations[] = {100, 50, 20, 10, 5, 1};
+        for (int i = 0; i < 6; i++) {
+            int count = change / denominations[i];
+            if (count > 0) {
+                printf("找零%d元，%d张\n", denominations[i], count);
+                change %= denominations[i];
+            }
         }
     }
     return 0;

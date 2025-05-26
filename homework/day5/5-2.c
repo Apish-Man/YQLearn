@@ -16,13 +16,18 @@
 #define PRICE_2 0.568
 #define PRICE_3 0.638
 
-int main()
-{
-    double num,price=0;
-    scanf("%lf",&num);
-    price+=num*PRICE_1;
-    if(num>50) price+=(num-50)*(PRICE_2-PRICE_1);
-    if(num>200) price+=(num-200)*(PRICE_3-PRICE_2);
-    printf("ans:%lf\n",price);
+int main() {
+    double num, price = 0;
+    scanf("%lf", &num);
+    
+    if (num <= 50) {
+        price = num * PRICE_1;
+    } else if (num <= 200) {
+        price = 50 * PRICE_1 + (num - 50) * PRICE_2;
+    } else {
+        price = 50 * PRICE_1 + 150 * PRICE_2 + (num - 200) * PRICE_3;
+    }
+    
+    printf("ans:%.2lf\n", price);
     return 0;
 }

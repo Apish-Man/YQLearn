@@ -24,5 +24,7 @@ int main(int argc,char *argv[])
     len--;
     printf("\n");
     for(i=0;i<len;i++) printf("%d ",*(ptr+i));
+    // 增加内存释放
+	  free(ptr);  // 在return前添加
     return 0;
 }

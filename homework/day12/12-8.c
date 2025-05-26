@@ -13,7 +13,7 @@ int get_num_zero(int (*arr)[4],int n)
   int i=0,j=0,num=0;
   for(i=0;i<n;i++)
   {
-    for(j=0;j<=i;j++)
+    for(j=i;j<n;j++)
     {
       if(arr[j][i]==0) num++;
     }

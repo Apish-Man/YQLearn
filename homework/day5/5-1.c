@@ -10,11 +10,14 @@
 
 int main()
 {
-    double bmi,weight,hight;
-    scanf("%lf%lf",&weight,&hight);
-    bmi=weight/hight;
-    if(bmi<18.5) printf("偏瘦，注意加强营养\n");
-    else if(bmi>23.9) printf("你有点偏胖，注意锻炼\n");
-    else printf("体重指数良好，注意保持\n");
+    double bmi, weight, height;  // 修正拼写错误
+    scanf("%lf%lf", &height, &weight);  // 调整输入顺序
+    bmi = weight / (height * height);  // 补上平方计算
+    if (bmi < 18.5)
+        printf("偏瘦，注意加强营养\n");
+    else if (bmi > 23.9)
+        printf("你有点偏胖，注意锻炼\n");
+    else
+        printf("体重指数良好，注意保持\n");
     return 0;
 }

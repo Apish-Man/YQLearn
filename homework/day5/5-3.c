@@ -6,22 +6,35 @@
 */
 #include <stdio.h>
 
-#define INSURANCE 650
 #define TAX_THRESHOLD 3500
 
-int main()
-{
-    double salary,tax;
-    printf("请输入每月工资:\n");
-    scanf("%lf",&salary);
-    double tmp=(salary-INSURANCE-TAX_THRESHOLD)*12;
-    if(tmp<=36000) tax=tmp*0.03-0;
-    if(tmp>36000&&tmp<=144000) tax=tmp*0.10-2520;
-    if(tmp>144000&&tmp<=300000) tax=tmp*0.20-16920;
-    if(tmp>300000&&tmp<=420000) tax=tmp*0.25-31920;
-    if(tmp>420000&&tmp<=660000) tax=tmp*0.30-52920;
-    if(tmp>660000&&tmp<=960000) tax=tmp*0.35-85920;
-    if(tmp>960000) tax=tmp*0.45-181920;
-    printf("res:%lf\n",tax);
+int main() {
+    double salary, insurance;
+    printf("请输入每月工资和社保费用:\n");
+    scanf("%lf%lf", &salary, &insurance);
+    
+    double annual_income = (salary - insurance - TAX_THRESHOLD) * 12;
+    double tax = 0;
+    
+    if (annual_income <= 0) {
+        tax = 0;
+    } else if (annual_income <= 36000) {
+        tax = annual_income * 0.03;
+    } else if (annual_income <= 144000) {
+        tax = annual_income * 0.10 - 2520;
+    } else if (annual_income <= 300000) {
+        tax = annual_income * 0.20 - 16920;
+    } else if (annual_income <= 420000) {
+        tax = annual_income * 0.25 - 31920;
+    } else if (annual_income <= 660000) {
+        tax = annual_income * 0.30 - 52920;
+    } else if (annual_income <= 960000) {
+        tax = annual_income * 0.35 - 85920;
+    } else {
+        tax = annual_income * 0.45 - 181920;
+    }
+    
+    printf("应纳税额: %.2lf元\n", tax/12); // 输出月均税额
     return 0;
 }
+

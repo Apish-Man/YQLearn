@@ -3,6 +3,7 @@
   > Author:       魏新强
   > Description:  
   > Created Time: 2025年05月16日 星期五 21时11分44秒
+  10. 设计函数，实现strcmp 的功能；
  ************************************************************************/
 
 #include <stdio.h>
@@ -23,6 +24,15 @@ int my_strcmp(char* str1,char* str2)
   }
   return str1[i]-str2[i];
 }
+
+int my_strcmp(const char* s1, const char* s2) {
+    while (*s1 && (*s1 == *s2)) {
+        s1++;
+        s2++;
+    }
+    return *(const unsigned char*)s1 - *(const unsigned char*)s2;
+}
+
 
 int main(int argc,char *argv[])
 {

@@ -26,5 +26,6 @@ int main(int argc,char *argv[])
     *(ptr+5)=100;
     printf("\n");
     for(i=0;i<len;i++) printf("%d ",*(ptr+i));
+    free(ptr);  // 避免内存泄漏
     return 0;
 }

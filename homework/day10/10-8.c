@@ -19,7 +19,8 @@
 char* convert(int num)
 {
     char * res=malloc(sizeof(char)*MAX);
-    memset(res,'\0',MAX);
+    memset(res, 0, MAX); // 正确初始化整个数组
+
     int i=0,j;
     // 倒存
     while(num)
@@ -28,6 +29,7 @@ char* convert(int num)
         res[i++]=tmp+'0';
         num=num/10;
     }
+    res[i] = '\0'; // 明确添加终止符
     // 数组反转
     i=0;j=strlen(res)-1;
     while(i<j)
@@ -48,6 +50,6 @@ int main(int argc,char *argv[])
     scanf("%d",&x);
     char* str=convert(x);
     printf("%s",str);
-    free(str);
+    free(str); // 避免内存泄漏
     return 0;
 }

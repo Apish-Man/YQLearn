@@ -19,6 +19,9 @@ char name[MAX][LEN_NAME];   // 学生姓名二维数组
 int score[MAX][NUM_SCORE];  // 成绩二维数组
 int len;                    // 当前记录数
 
+// 定义课程名称
+char* COURSE_NAMES[]={"语文","数学","英语"};
+
 bool init()
 {
     len = 0;  // 实际初始化操作
@@ -32,12 +35,52 @@ void menu()
     printf("0.退出系统\n1.添加学生信息\n2.显示所有学生信息\n3.计算学生平均分\n4.查找最高分科目\n");
 }
 
+// 验证成绩有效性
+int get_valid_score(const char* course)
+{
+    int score;
+    do{
+        printf("请输入%s成绩（0-100）：",course);
+        scanf("%d",&score);
+
+        // 清理缓冲区
+        while(getchar()!='\n');
+
+        if(score<0||score>100)
+        {
+            printf("输入错误，成绩必须在0-100之间\n");
+        }
+    }while(score<0||score>100);
+    
+    return score;
+}
+
 int add_one_student()
 {
     if(!(id&&name&&score)) return -1;//-1表示内存开辟失败
+    // 检查是否满
     if(len>=MAX) return -2;//-2表示存储空间满，添加失败
     printf("请依次输入以下信息：学号，姓名，语文成绩，数学成绩，英语成绩（使用空格隔开）\n");
-    scanf("%s%s%d%d%d",id[len],name[len],&score[len][0],&score[len][1],&score[len][2]);
+    // 1. 输入学号
+    printf("请输入学号(最多%d位数字)：", LEN_ID - 1);
+    scanf("%7s", id[len]); // 限制输入长度（截取控制台输入的前7个数）
+
+    // 清理缓冲区
+    while (getchar() != '\n');
+
+    // 2.输入姓名
+    printf("请输入姓名（最多%d位字符）：",LEN_NAME-1);
+    fgets(name[len],LEN_NAME,stdin);//fgets和scanf都会追加\0
+    name[len][strcspn(name[len],"\n")]='\0'; //`strcspn(str, "\n")`：返回 `\n` 在字符串中的位置
+
+    // 3.输入成绩
+    printf("请依次输入各科成绩:\n");
+    for(int i=0;i<NUM_SCORE;i++) 
+    {
+        score[len][i]=get_valid_score(COURSE_NAMES[i]);
+    }
+    // scanf("%s%s%d%d%d",id[len],name[len],&score[len][0],&score[len][1],&score[len][2]);
+    
     len++;
     printf("添加成功\n");
     return len;//返回当前数据长度
@@ -114,6 +157,35 @@ double caculate_max_score_grade(char *arr,int grade_len)
     return ans;
 }
 
+// 查找系统中的最高分科目和学生
+void find_max()
+{
+    if(len<=0){
+        printf("系统提示：当前没有学生信息！\n");
+        return;
+    }
+    int max_score=-1,max_stu_idx=-1,max_course_idx=-1;
+
+    // 遍历所有学生和科目
+    for(int i=0;i<len;i++)
+    {
+        for(int j=0;j<NUM_SCORE;j++)
+        {
+            if(score[i][j]>max_score){
+                max_score=score[i][j];
+                max_stu_idx=i;
+                max_course_idx=j;
+            }
+        }
+    }
+    // 打印最高分信息
+    printf("系统最高分：\n");
+    printf("学生: %s\n", name[max_stu_idx]);
+    printf("学号: %s\n", id[max_stu_idx]);
+    printf("科目: %s\n", COURSE_NAMES[max_course_idx]);
+    printf("分数: %d\n\n", max_score);
+}
+
 int main(int argc,char *argv[])
  {
     init();
@@ -158,6 +230,7 @@ int main(int argc,char *argv[])
                     else if(ans==2)
                         printf("学号为%s的学生的最高分科目为：%s\n",student_id,"英语");
                     else printf("查找失败\n");
+                    find_max();
                     break;
                 }
             default:

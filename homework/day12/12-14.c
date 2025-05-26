@@ -47,5 +47,6 @@ int main(int argc,char *argv[])
     }else{
         printf("复制失败\n");
     }
+    free(copy_arr);
     return 0;
 }

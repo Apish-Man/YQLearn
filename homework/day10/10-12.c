@@ -3,6 +3,9 @@
   > Author:       魏新强
   > Description:  
   > Created Time: 2025年05月16日 星期五 21时37分01秒
+  12. 设计一程序,实现一个简单的计算器。 要求：有菜单函数 和加、减、乘、除的函数 主函数调用
+这些函数实现程序的功能.要求菜单函数能够输出如下的界面
+1、加法 2、减法 3、乘法 4、除法 0.退出
  ************************************************************************/
 
 #include <stdio.h>
@@ -33,9 +36,12 @@ double multiply(double a,double b)
 }
 
 // 除法
-double divide(double a,double b)
-{
-  return a/b;
+double divide(double a,double b) {
+    if(b == 0) {
+        printf("除数不能为0！\n");
+        return 0;
+    }
+    return a/b;
 }
 
 int main(int argc,char *argv[])
@@ -44,7 +50,10 @@ int main(int argc,char *argv[])
   while(1)
   {
     menu();
-    scanf("%d",&choice);
+    if(scanf("%d",&choice)!=1){
+        while(getchar()!='\n'); // 清空错误输入
+        continue;
+    }
     switch(choice){
       case 1:{
         double a,b;

@@ -19,6 +19,11 @@ int main()
     int a,b,c;
     printf("请输入三条边长：");
     scanf("%d%d%d",&a,&b,&c);
+    // 显式校验边长有效性
+    if (a <= 0 || b <= 0 || c <= 0) {
+        printf("不是三角形\n");
+        return 0;
+    }
     if((a+b>c)&&(a+c>b)&&(b+c>a)){
         if(a==b&&b==c) printf("等边三角形\n");
         else if(a==b||a==c||b==c) printf("等腰三角形\n");

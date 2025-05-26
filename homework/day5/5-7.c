@@ -3,37 +3,48 @@
 */
 
 #include <stdio.h>
+#include <ctype.h>
 
-int main()
-{
-    int x1,x2;
+void clear_buffer() {
+    while(getchar() != '\n');
+}
+
+int main() {
+    int x1, x2;
     char oper;
-    while((scanf("%d%c%c%d",&x1,&oper,&oper,&x2)!=EOF))
-    {
-        printf("%d %c %d\n",x1,oper,x2);
-        switch(oper){
-            case '+':{
-                printf("%d %c %d = %d\n",x1,oper,x2,x1+x2);
-                break;
-            }
-            case '-':{
-                printf("%d %c %d = %d\n",x1,oper,x2,x1-x2);
-                break;
-            }
-            case '*':{
-                printf("%d %c %d = %d\n",x1,oper,x2,x1*x2);
-                break;
-            }
-            case '/':{
-                printf("%d %c %d = %d\n",x1,oper,x2,x1/x2);
-                break;
-            }
-            default:{
-                printf("输入错误\n");
-                break;
-            }
+    
+    while(1) {
+        printf("输入算式（格式：数字 运算符 数字 / q退出）\n");
+        int ret = scanf("%d %c %d", &x1, &oper, &x2);
+        
+        if (ret != 3) {
+            if (getchar() == 'q') break;
+            printf("输入格式错误！\n");
+            clear_buffer();
+            continue;
         }
 
+        switch(oper) {
+            case '+':
+                printf("%d + %d = %d\n", x1, x2, x1+x2);
+                break;
+            case '-':
+                printf("%d - %d = %d\n", x1, x2, x1-x2);
+                break;
+            case '*':
+                printf("%d * %d = %d\n", x1, x2, x1*x2);
+                break;
+            case '/':
+                if(x2 == 0) {
+                    printf("错误：除数不能为零\n");
+                    break;
+                }
+                printf("%d / %d = %.2f\n", x1, x2, (double)x1/x2);
+                break;
+            default:
+                printf("错误：无效运算符'%c'\n", oper);
+        }
+        clear_buffer();
     }
     return 0;
 }

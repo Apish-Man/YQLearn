@@ -23,7 +23,8 @@ int convert_printf(char* arr,int len)
 int main(int argc,char *argv[])
 {
     char str[7]="abcdef";
-    int len=sizeof(str)/sizeof(str[0]);
+    // int len=sizeof(str)/sizeof(str[0]);
+    int len = strlen(str);  // 有效字符数为6   注意区分字符数组的字符串长度和字符数组长度
     int i=0;
     for(i=0;i<len;i++) printf("%c",str[i]);
     printf("\n");

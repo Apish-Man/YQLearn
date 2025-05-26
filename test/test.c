@@ -9,8 +9,11 @@
 
 int main(int argc,char *argv[])
 {
-  char *str = "I love you";
-  printf("%s",str);
-  str[0] = 'n'; // 危险操作！运行时可能崩溃（gcc会警告）
-  printf("%s",str);
+  int x=65000;
+  int* p1=&x;
+  char* p2=(char*)p1;
+  printf("%c\n",*(p2));
+  printf("%c\n",*(p2+1));
+  printf("%c\n",*(p2+2));
+  printf("%c\n",*(p2+3));
 }
