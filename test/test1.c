@@ -1,14 +1,16 @@
 #include <stdio.h>
-
-void test1(char* str)
+void fun(char *str, int len)
 {
-	printf("test1:%p\n",&str);
+    // 在函数内部不能对字符串中的字符做修改，否则报错 段错误
+    *(str+1) = 'E';
+    str[2] = 'L';
+    printf("%s\n",str); // hELlo
 }
-
-int main()
+int main(int argc,char *argv[])
 {
-	char *arr="orange";
-	printf("arr:%p\n",arr);
-	test1(arr);
-	return 0;
+	char str1[] = "hello";
+    char *str = str1;
+    int len = sizeof(str)/sizeof(str[0]);
+    fun(str,len);
+    return 0;
 }
