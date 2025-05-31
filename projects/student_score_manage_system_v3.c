@@ -18,61 +18,62 @@
 // 姓名长度
 #define LEN_NAME 10
 
+// 定义结构体
+typedef struct 
+{
+    char id[LEN_ID];//学号
+    char name[LEN_NAME];//姓名
+    double scores[NUM_SUB];//成绩
+}Student;
+
+// 当前长度
+int stu_count=0;
+
+// 定义课程名称
+const char* COURSE_NAMES[NUM_SUB]={"语文","数学","英语"};
+
 int main()
 {
     // 1.定义初始变量
-    char stu_name[STU_MAX][LEN_NAME]={0};
-    char stu_id[STU_MAX][LEN_ID]={0};
-    double stu_score[STU_MAX][NUM_SUB]={0};
-    int stu_count=0;
-    // 定义课程名称
-    const char* COURSE_NAMES[NUM_SUB]={"语文","数学","英语"};
+    Student stuArray[STU_MAX];
+    stu_count=0;
 
     // 2.函数声明
     /*
     * 2.1 添加学生信息
-    * 形参：姓名：char (*p)[LEN_NAME]  学号：char (*p)[LEN_ID] 成绩：double (*p)[NUM_SUB] 当前人数: int* count,学科：COURSE_NAMES
+    * 形参：结构体数组：Student* stuArray 当前人数: int* count,学科：COURSE_NAMES
     * 返回值：int ,表示是否成功
-    * 逻辑：先判断当前是否满，若满，返回-1，打印提示信息，失败
-    * 录入学号，学号有效判断-->学号重复性判断，无效和重复允许重新输入，不返回
-    * 录入成绩，成绩有效判断
     * 返回1，表示成功
     */ 
-    int addStudent(char (*name)[LEN_NAME],char (*id)[LEN_ID],double (*score)[NUM_SUB],int *count,const char **couseName);
+    int addStudent(Student* stuArray,int *count,const char **couseName);
     /*
     * 2.2 显示所有学生信息
-    * 形参：姓名：char (*p)[LEN_NAME]  学号：char (*p)[LEN_ID] 成绩：double (*p)[NUM_SUB] 当前人数: int count
+    * 形参：结构体数组：Student* stuArray 当前人数: int count
     * 返回值：void
-    * 逻辑：打印表头，遍历，打印信息
     */ 
-    int showAllStudent(const char (*name)[LEN_NAME],const char (*id)[LEN_ID],const double (*score)[NUM_SUB],int count,const char **couseName);
+    int showAllStudent(Student* stuArray,int count,const char **couseName);
     /*
     * 2.3 计算每个学生的平均分和总分
-    * 形参：姓名：char (*p)[LEN_NAME]  学号：char (*p)[LEN_ID] 成绩：double (*p)[NUM_SUB] 当前人数: int count
+    * 形参：结构体数组：Student* stuArray 当前人数: int count
     * 返回值：void
-    * 逻辑：打印表头：学号，姓名，平均成绩，总分
-    * 遍历计算
     */ 
-    void caculateEveryStudentAverSum(char (*name)[LEN_NAME],char (*id)[LEN_ID],double (*score)[NUM_SUB],int count);
+    void caculateEveryStudentAverSum(Student* stuArray,int count);
     /*
     * 2.4 根据某科成绩排序
-    * 形参：姓名：char (*p)[LEN_NAME]  学号：char (*p)[LEN_ID] 成绩：double (*p)[NUM_SUB] 当前人数: int count 交换科目：int indexSub 升序降序：1升0降 int flag
+    * 形参：结构体数组：Student* stuArray 当前人数: int count 交换科目：int indexSub 升序降序：1升0降 int flag
     * 返回值：int ,表示是否成功
-    * 逻辑：先让用户选择科目，并且选择升序降序，然后使用冒泡排序
-    * 从0开始比较该科目成绩，若不符合，则交换成绩，同时交换学号和姓名
     * 返回1，表示成功
     * 返回-1，比较索引出错
     * 返回-2，元素交换出错
     */ 
-    int sortStudent(char (*name)[LEN_NAME],char (*id)[LEN_ID],double (*score)[NUM_SUB],int count,int indexSub,int flag);
+    int sortStudent(Student* stuArray,int count,int indexSub,int flag);
     /*
     * 2.5 查找学生信息
-    * 形参：姓名：char (*p)[LEN_NAME]  学号：char (*p)[LEN_ID] 成绩：double (*p)[NUM_SUB] 当前人数: int count 学号：char* target
+    * 形参：结构体数组：Student* stuArray  当前人数: int count 学号：char* target
     * 返回值：int ,表示是否成功
-    * 逻辑：顺序查找，找到后统计成绩和平均分
     * 返回1，表示成功
     */ 
-    int findStudent(char (*name)[LEN_NAME],char (*id)[LEN_ID],double (*score)[NUM_SUB],int count,const char *target,const char **couseName);
+    int findStudent(Student* stuArray,int count,const char *target,const char **couseName);
 
     // 主函数
     int choice;
@@ -84,15 +85,15 @@ int main()
         switch(choice){
             case 1:
                 // 添加学生信息
-                addStudent(stu_name,stu_id,stu_score,&stu_count,COURSE_NAMES);
+                addStudent(stuArray,&stu_count,COURSE_NAMES);
                 break;
             case 2:
                 // 显示所有学生信息
-                showAllStudent(stu_name,stu_id,stu_score,stu_count,COURSE_NAMES);
+                showAllStudent(stuArray,stu_count,COURSE_NAMES);
                 break;
             case 3:
                 // 计算每个学生的平均分和总分
-                caculateEveryStudentAverSum(stu_name,stu_id,stu_score,stu_count);
+                caculateEveryStudentAverSum(stuArray,stu_count);
                 break;
             case 4:
             {
@@ -115,8 +116,8 @@ int main()
                     if(flag==0||flag==1) valid=1;
                     else printf("输入错误\n");
                 }while(!valid);
-                sortStudent(stu_name,stu_id,stu_score,stu_count,indexSub,flag);
-                showAllStudent(stu_name,stu_id,stu_score,stu_count,COURSE_NAMES);
+                sortStudent(stuArray,stu_count,indexSub,flag);
+                showAllStudent(stuArray,stu_count,COURSE_NAMES);
                 break;
             }
             case 5:
@@ -149,7 +150,7 @@ int main()
                         printf("学号输入有误，重新输入\n");
                     }
                 }while(!flag);
-                findStudent(stu_name,stu_id,stu_score,stu_count,target,COURSE_NAMES);
+                findStudent(stuArray,stu_count,target,COURSE_NAMES);
                 break;
             }
             case 6:
@@ -163,28 +164,26 @@ int main()
         }
     }while(choice!=6);
 
-
     return 0;
 }
 
 // 3.函数定义
     /*
     * 2.1 添加学生信息
-    * 形参：姓名：char (*p)[LEN_NAME]  学号：char (*p)[LEN_ID] 成绩：double (*p)[NUM_SUB] 当前人数: int* count 学科 COURSE_NAMES
+    * 形参：结构体数组：Student* stuArray 当前人数: int* count,学科：COURSE_NAMES
     * 返回值：int ,表示是否成功
-    * 逻辑：先判断当前是否满，若满，返回-1，打印提示信息，失败
-    * 录入学号，学号有效判断-->学号重复性判断，无效和重复允许重新输入，不返回
-    * 录入成绩，成绩有效判断
     * 返回1，表示成功
     */ 
-int validId(char (*id)[LEN_ID],int count,char* input);
-int addStudent(char (*name)[LEN_NAME],char (*id)[LEN_ID],double (*score)[NUM_SUB],int *count,const char **couseName)
+int validId(Student* stuArray,int count,char* input);
+int addStudent(Student* stuArray,int *count,const char **couseName)
 {
     int len=*count;
     if(*count>=STU_MAX){
         printf("当前内存空间已满，无法插入\n");
         return -1;
     }
+    //临时变量
+    Student student;
     // 1.输入学号
     char tmp[LEN_ID];
     int flag=0;//输入是否有效
@@ -199,41 +198,37 @@ int addStudent(char (*name)[LEN_NAME],char (*id)[LEN_ID],double (*score)[NUM_SUB
         }
         // 2.去除换行符
         size_t len=strlen(tmp);
-        if (len >0 && tmp[len-1] == '\n') {
-            tmp[--len] = '\0';  // 删除换行符
-        }else if(len==sizeof(tmp)-1){
+        if (len >0 && tmp[len-1] == '\n') {//此时未读满
+            tmp[--len] = '\0';  // 删除换行符,此时读入为abc\n\0
+        }else if(len==sizeof(tmp)-1){//此时读满了
             while(getchar()!='\n');
         }
         // 3.处理空输入
         if(len==0){
             printf("不能输入空字符串\n");
         }
-        if(strlen(tmp)==LEN_ID-1&&validId(id,*count,tmp)==1) flag=1;
+        if(strlen(tmp)==LEN_ID-1&&validId(stuArray,*count,tmp)==1) flag=1;
         else printf("学号输入无效，请仔细检查后重新输入\n");
     }while(!flag);
-    // 录入学号
-    strcpy(id[len],tmp);
+    strcpy(student.id,tmp); // 录入学号
+
     // 2.输入姓名
     char tmp_name[LEN_NAME];
-    // while(getchar()!='\n');//清理缓冲区
     flag=0;//输入是否有效
     do{
         printf("请输入最高%d位姓名，若多于%d位，将被截断\n",LEN_NAME-1,LEN_NAME-1);
-        
-        // 1.读取输入
-        if(fgets(tmp_name,LEN_ID,stdin)==NULL)           //最多读入LEN_ID-1个字符，最后一个会自动补0
+        if(fgets(tmp_name,LEN_NAME,stdin)==NULL)   //此处最大LEN_NAME，但fgets会补\0，最多读入LEN_NAME-1
         {
             printf("输入错误\n");
             continue;
         }
-        // 2.去除换行符
+        //去除换行或清空缓冲区
         size_t len=strlen(tmp_name);
-        if (len >0 && tmp_name[len-1] == '\n') {
-            tmp_name[--len] = '\0';  // 删除换行符
-        }else if(len==sizeof(tmp_name)-1){
+        if(len>0&&tmp_name[len-1]=='\n')
+            tmp_name[--len]='\0';
+        else if(len==sizeof(tmp_name)-1)
             while(getchar()!='\n');
-        }
-        // 3.处理空输入
+        //空字符串
         if(len==0){
             printf("不能输入空字符串\n");
         }
@@ -241,7 +236,8 @@ int addStudent(char (*name)[LEN_NAME],char (*id)[LEN_ID],double (*score)[NUM_SUB
         else printf("姓名输入无效，请仔细检查后重新输入\n");
     }while(!flag);
     // 录入姓名
-    strcpy(name[len],tmp_name);
+    strcpy(student.name,tmp_name);
+
     // 3.录入成绩
     for(int i=0;i<NUM_SUB;)
     {
@@ -255,22 +251,19 @@ int addStudent(char (*name)[LEN_NAME],char (*id)[LEN_ID],double (*score)[NUM_SUB
             printf("录入成绩不合要求，请重新输入\n");
             continue;
         }
-        *(*(score+len)+i)=tmp;//录入成绩
+        student.scores[i]=tmp;//录入成绩
         i++;
     }
+    stuArray[*count]=student;
     (*count)++;
     return 1;
 }
     /*
     * 2.1 检查学号输入是否有效
-    * 形参：学号：char (*p)[LEN_ID] 当前人数: int count 当前学号 char* p
-    * 返回值：int ,表示是否成功
-    * 逻辑：先判断当前是否满，若满，返回-1，打印提示信息，失败
-    * 录入学号，学号有效判断-->学号重复性判断，无效和重复允许重新输入，不返回
-    * 录入成绩，成绩有效判断
+    * 形参：学号：Student* stuArray 当前人数: int count 当前学号 char* p
     * 返回1，表示成功
     */ 
-int validId(char (*id)[LEN_ID],int count,char* input)
+int validId(Student* stuArray,int count,char* input)
 {
     int len=strlen(input);
     for(int i=0;i<len;i++)
@@ -278,18 +271,17 @@ int validId(char (*id)[LEN_ID],int count,char* input)
         if(input[i]<'0'||input[i]>'9') return -1;//输入不符合
     }
     for(int i=0;i<count;i++){
-        if(strcmp(id[i],input)==0) return 0;//重复
+        if(strcmp(stuArray[i].id,input)==0) return 0;//重复
     }
     return 1;
 }
 
     /*
     * 2.2 显示所有学生信息
-    * 形参：姓名：char (*p)[LEN_NAME]  学号：char (*p)[LEN_ID] 成绩：double (*p)[NUM_SUB] 当前人数: int count
+    * 形参：结构体数组：Student* stuArray 当前人数: int count
     * 返回值：void
-    * 逻辑：打印表头，遍历，打印信息
     */ 
-int showAllStudent(const char (*name)[LEN_NAME],const char (*id)[LEN_ID],const double (*score)[NUM_SUB],int count,const char **couseName)
+int showAllStudent(Student* stuArray,int count,const char **couseName)
 {
     printf("学号：\t姓名：\t");
     for(int i=0;i<NUM_SUB;i++)
@@ -298,10 +290,10 @@ int showAllStudent(const char (*name)[LEN_NAME],const char (*id)[LEN_ID],const d
     }
     for(int i=0;i<count;i++)
     {
-        printf("\n%s\t%s\t",id[i],name[i]);
+        printf("\n%s\t%s\t",stuArray[i].id,stuArray[i].name);
         for(int j=0;j<NUM_SUB;j++)
         {
-            printf("%.3lf\t\t",score[i][j]);
+            printf("%.3lf\t\t",stuArray[i].scores[j]);
         }
     }
     printf("\n");
@@ -310,12 +302,10 @@ int showAllStudent(const char (*name)[LEN_NAME],const char (*id)[LEN_ID],const d
 
     /*
     * 2.3 计算每个学生的平均分和总分
-    * 形参：姓名：char (*p)[LEN_NAME]  学号：char (*p)[LEN_ID] 成绩：double (*p)[NUM_SUB] 当前人数: int count
+    * 形参：结构体数组：Student* stuArray 当前人数: int count
     * 返回值：void
-    * 逻辑：打印表头：学号，姓名，平均成绩，总分
-    * 遍历计算
     */ 
-void caculateEveryStudentAverSum(char (*name)[LEN_NAME],char (*id)[LEN_ID],double (*score)[NUM_SUB],int count)
+void caculateEveryStudentAverSum(Student* stuArray,int count)
 {
     printf("学号：\t姓名：\t总分\t平均分\t\n");
     for(int i=0;i<count;i++)
@@ -323,25 +313,24 @@ void caculateEveryStudentAverSum(char (*name)[LEN_NAME],char (*id)[LEN_ID],doubl
         double sum=0,aver=0;
         for(int j=0;j<NUM_SUB;j++)
         {
-            sum+=score[i][j];
+            sum+=stuArray[i].scores[j];
         }
         aver=sum/NUM_SUB;
-        printf("%s\t%s\t%.3lf\t%.3lf\n",id[i],name[i],sum,aver);
+        printf("%s\t%s\t%.3lf\t%.3lf\n",stuArray[i].id,stuArray[i].name,sum,aver);
     }
 }
 
     /*
     * 2.5 查找学生信息
-    * 形参：姓名：char (*p)[LEN_NAME]  学号：char (*p)[LEN_ID] 成绩：double (*p)[NUM_SUB] 当前人数: int count 学号：char* target
+    * 形参：结构体数组：Student* stuArray  当前人数: int count 学号：char* target
     * 返回值：int ,表示是否成功
-    * 逻辑：顺序查找，找到后统计成绩和平均分
     * 返回1，表示成功
     */ 
-int findStudent(char (*name)[LEN_NAME],char (*id)[LEN_ID],double (*score)[NUM_SUB],int count,const char *target,const char **couseName)
+int findStudent(Student* stuArray,int count,const char *target,const char **couseName)
 {
     for(int i=0;i<count;i++)
     {
-        if(strcmp(id[i],target)==0)
+        if(strcmp(stuArray[i].id,target)==0)
         {
             // 找到
             // 打印表头
@@ -350,10 +339,10 @@ int findStudent(char (*name)[LEN_NAME],char (*id)[LEN_ID],double (*score)[NUM_SU
             printf("平均分\t成绩\t\n");
             // 打印数据
             double sum=0,ave=0;
-            printf("%s\t%s\t",id[i],name[i]);
+            printf("%s\t%s\t",stuArray[i].id,stuArray[i].name);
             for(int j=0;j<NUM_SUB;j++) {
-                sum+=score[i][j];
-                printf("%.3lf\t\t",score[i][j]);
+                sum+=stuArray[i].scores[j];
+                printf("%.3lf\t\t",stuArray[i].scores[j]);
             }
             ave=sum/NUM_SUB;
             printf("%.3lf\t%.3lf\t\n",ave,sum);
@@ -366,39 +355,23 @@ int findStudent(char (*name)[LEN_NAME],char (*id)[LEN_ID],double (*score)[NUM_SU
 
     /*
     * 2.4 根据某科成绩排序
-    * 形参：姓名：char (*p)[LEN_NAME]  学号：char (*p)[LEN_ID] 成绩：double (*p)[NUM_SUB] 当前人数: int count 排序科目：int indexSub 升序降序：1升0降 int flag
+    * 形参：结构体数组：Student* stuArray 当前人数: int count 交换科目：int indexSub 升序降序：1升0降 int flag
     * 返回值：int ,表示是否成功
-    * 逻辑：先让用户选择科目，并且选择升序降序，然后使用冒泡排序
-    * 从0开始比较该科目成绩，若不符合，则交换成绩，同时交换学号和姓名
     * 返回1，表示成功
     * 返回-1，比较索引出错
     * 返回-2，元素交换出错
     */ 
 // 交换x,y
-int swap(int x,int y,char (*name)[LEN_NAME],char (*id)[LEN_ID],double (*score)[NUM_SUB])
+int swap(int x,int y,Student* stuArray)
 {
-    // 1.交换学号
-    // printf("%s  %s\n",id[x],id[y]);
-    char tmp_id[LEN_NAME]={0};
-    strcpy(tmp_id,id[x]);
-    strcpy(id[x],id[y]);
-    strcpy(id[y],tmp_id);
-    // printf("%s  %s\n",id[x],id[y]);
-    // 2.交换姓名
-    char tmp_name[LEN_NAME]={0};
-    strcpy(tmp_name,name[x]);
-    strcpy(name[x],name[y]);
-    strcpy(name[y],tmp_name);
-    // 3.交换成绩
-    for(int i=0;i<NUM_SUB;i++)
-    {
-        double tmp=score[x][i];
-        score[x][i]=score[y][i];
-        score[y][i]=tmp;
-    }
+    Student tmp=stuArray[x];
+    stuArray[x]=stuArray[y];
+    stuArray[y]=tmp;
+
     return 1;
 }
-int sortStudent(char (*name)[LEN_NAME],char (*id)[LEN_ID],double (*score)[NUM_SUB],int count,int indexSub,int flag)
+
+int sortStudent(Student* stuArray,int count,int indexSub,int flag)
 {
     if(indexSub<0||indexSub>NUM_SUB) return -1;//比较索引出错
     for(int i=0;i<count-1;i++)
@@ -409,8 +382,8 @@ int sortStudent(char (*name)[LEN_NAME],char (*id)[LEN_ID],double (*score)[NUM_SU
         {
             if(flag){
                 // 升序
-                if(score[j][indexSub]>score[j+1][indexSub]){
-                    if(swap(j,j+1,name,id,score)==1)  //交换成功，返回1
+                if(stuArray[j].scores[indexSub]>stuArray[j+1].scores[indexSub]){
+                    if(swap(j,j+1,stuArray)==1)  //交换成功，返回1
                         is_swap=1;
                     else{
                         printf("元素交换出错\n");
@@ -419,8 +392,8 @@ int sortStudent(char (*name)[LEN_NAME],char (*id)[LEN_ID],double (*score)[NUM_SU
                 }
             }else{
                 // 降序
-                if(score[j][indexSub]<score[j+1][indexSub]){
-                    if(swap(j,j+1,name,id,score)==1)  //交换成功，返回1
+                if(stuArray[j].scores[indexSub]<stuArray[j+1].scores[indexSub]){
+                    if(swap(j,j+1,stuArray)==1)  //交换成功，返回1
                         is_swap=1;
                     else{
                         printf("元素交换出错\n");
