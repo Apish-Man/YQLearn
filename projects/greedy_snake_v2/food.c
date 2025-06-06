@@ -22,6 +22,9 @@ NODE *init_food(Block (*newcontainer)[WIDTH_BOUNDARY], Block (*oldcontainer)[WID
   NODE *food = createFoodNode(newcontainer, len, wid);
   if (!food)
     return NULL;
+  // 更新food
+  food->next=food;
+  food->prev=food;
   // 更新对应container
   int tmpx = food->data.i, tmpy = food->data.j;
   oldcontainer[tmpx][tmpy] = newcontainer[tmpx][tmpy];
@@ -54,7 +57,7 @@ NODE *createFoodNode(Block (*newcontainer)[WIDTH_BOUNDARY], int len, int wid)
   srand(time(NULL));
   // 创建头结点
   NODE *food = (NODE *)malloc(sizeof(NODE));
-  if (!snake)
+  if (!food)
     return NULL;
   // 头节点，x,y赋值
   int tmp_x, tmp_y;

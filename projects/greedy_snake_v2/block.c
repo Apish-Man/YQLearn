@@ -81,8 +81,8 @@ static int initBlock(Block *p, int x, int y)
 
 int renderContainer(WINDOW *win, Block (*newContainer)[WIDTH_BOUNDARY], Block (*oldContainer)[WIDTH_BOUNDARY], int len, int wid)
 {
-  // 清理旧画面
-  werase(win);
+  // 清理旧画面,动态刷新不需要修改
+  // werase(win);
 
   // 遍历container，渲染
   for (int i =0 ; i < len; i++)
@@ -129,11 +129,11 @@ int renderBlock(WINDOW *win, Block *bl)
       else if (bl->type == snake)
       {
         if(bl->type_index==0)
-          c = snake_head_icon[bl->dir][block_i * BLOCK_SIZE + block_j];
+          c = snake_head_icon[bl->dir-1][block_i * BLOCK_SIZE + block_j];
         else if(bl->type_index==1)
-          c = snake_middle_icon[bl->dir][block_i * BLOCK_SIZE + block_j];
+          c = snake_middle_icon[bl->dir-1][block_i * BLOCK_SIZE + block_j];
         else if(bl->type_index==2)
-          c = snake_tail_icon[bl->dir][block_i * BLOCK_SIZE + block_j];
+          c = snake_tail_icon[bl->dir-1][block_i * BLOCK_SIZE + block_j];
       }
       else if(bl->type==food)
       {

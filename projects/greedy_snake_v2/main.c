@@ -13,6 +13,7 @@
 #define INIT_X 0
 #define INIT_Y 0
 
+
 // 定义图标显示
 // 蛇头，对应上0，下1，左2，右3
 const char snake_head_icon[4][9] = {" @ o oOOO", "OOOo o @ ", " oO@ O oO", "Oo O @Oo "};
@@ -58,7 +59,7 @@ int main(int argc, char *argv[])
   // 创建窗口
   WINDOW *win_game = newwin(LENTH_BOUNDARY * BLOCK_SIZE, WIDTH_BOUNDARY * BLOCK_SIZE, INIT_X, INIT_Y); // 创建新窗口：10行20列，起始坐标(5,5)[4]
   // 在初始化部分创建调试窗口
-  WINDOW *win_debug = newwin(4, 40, LENTH_BOUNDARY * BLOCK_SIZE + 1, 0); // 位于主窗口下方
+  WINDOW *win_debug = newwin(4, WIDTH_BOUNDARY * BLOCK_SIZE, LENTH_BOUNDARY * BLOCK_SIZE + 1, 0); // 位于主窗口下方
 
   // 定义双向循环链表记录，蛇，食物，障碍物
   NODE *Snake = NULL;
@@ -69,7 +70,7 @@ int main(int argc, char *argv[])
   init_game(win_game, container, oldcontainer, LENTH_BOUNDARY, WIDTH_BOUNDARY, &Snake, &Food, &Obstacle);
 
   // 初始化页面
-  renderContainer(win_game, container, oldcontainer, LENTH_BOUNDARY, WIDTH_BOUNDARY);
+  // renderContainer(win_game, container, oldcontainer, LENTH_BOUNDARY, WIDTH_BOUNDARY);
 
   int press_dir; // 按键按下方向
 
@@ -79,10 +80,10 @@ int main(int argc, char *argv[])
     ch = getch();
 
     // 调试输出区域
-    werase(win_debug);                                         // 清空调试窗口
-    box(win_debug, 0, 0);                                      // 给调试窗口加边框
-    mvwprintw(win_debug, 1, 1, "Last Key: %d (0x%X)", ch, ch); // 显示十进制和十六进制值
-                                                               // 添加特殊键识别
+    werase(win_debug);    // 清空调试窗口
+    box(win_debug, 0, 0); // 给调试窗口加边框
+    // mvwprintw(win_debug, 1, 1, "Last Key: %d (0x%X)", ch, ch); // 显示十进制和十六进制值
+    // 添加特殊键识别
     const char *keyname = "Unknown";
 
     // 处理输入
@@ -118,29 +119,40 @@ int main(int argc, char *argv[])
       return 1;         // 退出游戏
     case ERR:
       keyname = "No Input";
-      press_dir=none;
+      press_dir = none;
       break;
     default:
-      press_dir=none;
-      keyname ="others Input"; // 可打印字符直接显示
+      press_dir = none;
+      keyname = "others Input"; // 可打印字符直接显示
       break;
     }
     // 调试窗口
-    mvwprintw(win_debug, 2, 1, "Decode: %s", keyname);
-    wrefresh(win_debug); // 必须单独刷新调试窗口
-    usleep(1e6);//停留3秒
+    // mvwprintw(win_debug, 2, 1, "Decode: %s", keyname);
 
+    // 在调试窗口中显示链表状态
+    dclist_showInWindow(win_debug, Snake, "Snake");
+    wrefresh(win_debug); // 必须单独刷新调试窗口
+    
     // 更新容器内容（业务逻辑）
-    updateContainer(container,oldcontainer, LENTH_BOUNDARY, WIDTH_BOUNDARY, &Snake, &Food, &Obstacle,press_dir);
-    // 渲染到窗口
-    renderAllContainer(win_game, container, LENTH_BOUNDARY, WIDTH_BOUNDARY);
-    // renderContainer(win_game, container, oldcontainer, LENTH_BOUNDARY, WIDTH_BOUNDARY);
+    updateContainer(container, oldcontainer, LENTH_BOUNDARY, WIDTH_BOUNDARY, &Snake, &Food, &Obstacle, press_dir);
+    // 渲染
+    renderContainer(win_game, container, oldcontainer, LENTH_BOUNDARY, WIDTH_BOUNDARY);
+
     wrefresh(win_game); // 刷新游戏窗口
+
+    // 清理缓冲区，避免输入过多卡顿
+    // 在每次循环末尾清空输入缓冲区
+    flushinp(); // 丢弃所有未处理的输入
+
     // 控制刷新率（单位：微秒）
-    usleep(1000); // 100ms-100000us刷新一次,1秒（s）等于1000毫秒（ms）,usleep()函数的单位是微秒（μs），1ms=1000微秒
+    usleep(500000); // 100ms-100000us刷新一次,1秒（s）等于1000毫秒（ms）,usleep()函数的单位是微秒（μs），1ms=1000微秒
   }
   delwin(win_game); // 销毁窗口[4]
 
+  // 在main.c的退出前添加
+  dclist_destroy(&Snake);
+  dclist_destroy(&Food);
+  dclist_destroy(&Obstacle);
   endwin(); // 恢复终端原始模式并释放资源[5]
   return 0;
 }

@@ -22,6 +22,9 @@ NODE *init_obstacle(Block (*newcontainer)[WIDTH_BOUNDARY], Block (*oldcontainer)
   NODE *obstacle = createObstacleNode(newcontainer, len, wid);
   if (!obstacle)
     return NULL;
+  // 更新obstacle
+  obstacle->next=obstacle;
+  obstacle->prev=obstacle;
   // 更新对应container
   int tmpx = obstacle->data.i, tmpy = obstacle->data.j;
   oldcontainer[tmpx][tmpy] = newcontainer[tmpx][tmpy];
@@ -54,7 +57,7 @@ NODE *createObstacleNode(Block (*newcontainer)[WIDTH_BOUNDARY], int len, int wid
   srand(time(NULL));
   // 创建头结点
   NODE *obstacle = (NODE *)malloc(sizeof(NODE));
-  if (!snake)
+  if (!obstacle)
     return NULL;
   // 头节点，x,y赋值
   int tmp_x, tmp_y;

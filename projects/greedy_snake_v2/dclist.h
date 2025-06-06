@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ncurses.h>
 
 typedef struct 
 {
@@ -48,6 +49,22 @@ extern int dclist_add(NODE **head, DATA data);
 extern int dclist_tail_add(NODE **head, NODE *node);
 
 /**
+ * 向链表添加节点数据,头插法
+ * @param head：待操作的链表
+ * @param node：待插入的节点
+ * @return 成功返回0，失败返回-1
+ */
+extern int dclist_head_add(NODE **head, NODE *node);
+
+/**
+ * 在 ncurses 窗口中调试打印双向循环链表
+ * @param win: ncurses 窗口指针
+ * @param head: 待操作的链表
+ * @param title: 调试信息的标题
+ */
+extern void dclist_showInWindow(WINDOW *win, const NODE *head, const char *title);
+
+/**
  * 遍历链表数据
  * @param head：待操作的链表
  */
@@ -69,6 +86,13 @@ extern int dclist_update(const NODE *head, DATA old, DATA newdata);
  * @return 成功返回0，失败返回-1
  */
 extern int dclist_delete(NODE **head, DATA data);
+
+/**
+ * 删除链表尾节点节点
+ * @param head：待操作的链表
+ * @return 成功返回0，失败返回-1
+ */
+extern int dclist_tail_delete(NODE **head);
 
 /**
  * 销毁链表

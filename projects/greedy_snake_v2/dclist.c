@@ -79,25 +79,141 @@ int dclist_tail_add(NODE **head, NODE *node)
   {
     // 新节点为头节点
     *head=node;
-    node->next=NULL;
-    node->prev=NULL;
-    return 0;
-  }
+    node->next=node;
+    node->prev=node;
+  }else
+  {
   // 更改指针指向（尾插法）
-  // 1.只有一个节点
-  (*head)->next=node;
-  (*head)->prev=node;
-  node->next=*head;
-  node->prev=*head;
-  // 2.多个节点
-  NODE* tail=(*head)->prev;
-  tail->next=node;
-  node->prev=tail;
-  node->next=(*head);
-  (*head)->prev=node;
+    NODE* tail=(*head)->prev;
+    tail->next=node;
+    node->prev=tail;
+    node->next=(*head);
+    (*head)->prev=node;
+  }
   return 0;
 }
 
+/**
+ * 向链表添加节点数据,头插法
+ * @param head：待操作的链表
+ * @param node：待插入的节点
+ * @return 成功返回0，失败返回-1
+ */
+int dclist_head_add(NODE **head, NODE *node)
+{
+  // 空链表
+  if (*head == NULL)
+  {
+    // 新节点为头节点
+    *head=node;
+    node->next=node;
+    node->prev=node;
+  }else
+  {
+  // 更改指针指向（头插法）
+    NODE* tail=(*head)->prev;
+    tail->next=node;
+    node->prev=tail;
+    node->next=(*head);
+    (*head)->prev=node;
+    (*head)=node;
+  }
+  return 0;
+}
+
+/**
+ * 在 ncurses 窗口中调试打印双向循环链表
+ * @param win: ncurses 窗口指针
+ * @param head: 待操作的链表
+ * @param title: 调试信息的标题
+ */
+void dclist_showInWindow(WINDOW *win, const NODE *head, const char *title) {
+    if (!head) {
+        wprintw(win, "%s: List is NULL\n", title);
+        return;
+    }
+
+    // 保存原始光标位置
+    int orig_y, orig_x;
+    getyx(win, orig_y, orig_x);
+    
+    // 显示标题
+    wprintw(win, "%s:\n", title);
+    
+    // 显示正序
+    wprintw(win, "Forward: ");
+    const NODE *current = head;
+    int count = 0;
+    int max_y, max_x;
+    getmaxyx(win, max_y, max_x);
+    
+    do {
+        // 检查是否超出窗口边界
+        int cur_y, cur_x;
+        getyx(win, cur_y, cur_x);
+        
+        // 如果接近边界，换行显示
+        if (cur_x > max_x - 20) {
+            wprintw(win, "\n         ");
+        }
+        
+        wprintw(win, "(%d,%d) ", current->data.i, current->data.j);
+        
+        // 添加方向指示器
+        if (current->next != head) {
+            wprintw(win, "-> ");
+        }
+        
+        current = current->next;
+        count++;
+        
+        // 防止无限循环
+        if (count > 100) {
+            wprintw(win, "\n[WARN] Loop detected! Aborting display\n");
+            break;
+        }
+    } while (current != head);
+    
+    // 显示逆序
+    wprintw(win, "\nReverse: ");
+    current = head->prev;
+    count = 0;
+    
+    do {
+        // 检查是否超出窗口边界
+        int cur_y, cur_x;
+        getyx(win, cur_y, cur_x);
+        
+        // 如果接近边界，换行显示
+        if (cur_x > max_x - 20) {
+            wprintw(win, "\n         ");
+        }
+        
+        wprintw(win, "(%d,%d) ", current->data.i, current->data.j);
+        
+        // 添加方向指示器
+        if (current->prev != head->prev) {
+            wprintw(win, "<- ");
+        }
+        
+        current = current->prev;
+        count++;
+        
+        // 防止无限循环
+        if (count > 100) {
+            wprintw(win, "\n[WARN] Loop detected! Aborting display\n");
+            break;
+        }
+    } while (current != head->prev);
+    
+    wprintw(win, "\n");
+    
+    // 恢复原始光标位置
+    wmove(win, orig_y, orig_x);
+    
+    // 刷新窗口显示
+    wrefresh(win);
+}
 
 /**
  * 遍历链表数据
@@ -213,6 +329,29 @@ int dclist_delete(NODE **head, DATA data)
   del->next->prev = del->prev;
   free(del);
 
+  return 0;
+}
+
+/**
+ * 删除链表尾节点节点
+ * @param head：待操作的链表
+ * @return 成功返回0，失败返回-1
+ */
+int dclist_tail_delete(NODE **head)
+{
+  if((*head)==NULL) return -1;
+  // 只有一个节点
+  if((*head)->next==(*head))
+  {
+    free(*head);
+    (*head)=NULL;
+    return 0;
+  }
+  // 多个节点
+  NODE *tail=(*head)->prev;
+  (*head)->prev=tail->prev;
+  tail->prev->next=(*head);
+  free(tail);
   return 0;
 }
 
