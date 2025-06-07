@@ -34,23 +34,36 @@ extern NODE *init_snake(Block (*newcontainer)[WIDTH_BOUNDARY], Block (*oldcontai
  */
 extern NODE *createSnakeNode(Block (*newcontainer)[WIDTH_BOUNDARY], int len, int wid);
 
-// 根据链表更新container
-// newNode  oldHead  node node ...  tail  NULL
-// p        q                       p     q
-// 先保存p的block状态，再每次把q的block状态复制到p,直到q为NULL，然后把q的block设置为空
-// 不需要修改Snake，故使用NODE*
-// 成功返回0，失败返回-1
-extern int updateContainerOnSnake(Block (*newContainer)[WIDTH_BOUNDARY], Block (*oldContainer)[WIDTH_BOUNDARY], int len, int wid, NODE *Snake);
 
-// 根据链表和输入方向更新container
-// newNode  oldHead  node node ...  tail  NULL
-// p        q                       p     q
-// 先保存p的block状态，再每次把q的block状态复制到p,直到q为NULL，然后把q的block设置为空
-// 头节点对应的container方向改变
-// 不需要修改Snake，故使用NODE*
-// 成功返回0，失败返回-1
-extern int updateContainerOnSnakeDir(Block (*newContainer)[WIDTH_BOUNDARY], Block (*oldContainer)[WIDTH_BOUNDARY], int len, int wid, NODE **Snake,int dir,int next_i,int next_j);
+/*
+* 统计Snake链表的下标，并且存储到snapshotPos，统计其个数，记入snapshotCnt
+* @param Snake,蛇链表
+* @param snapshotPos,暂存位置数组
+* @param snapshotCnt,记录旧链表长度
+* @return int 1为成功，0为失败
+*/
+extern int snapshot_old_snake(NODE *Snake,Coordinate *snapshotPos,int* snapshotCnt);
 
-/* 辅助：根据整条蛇重新刷 container */
-static void paint_snake(Block (*newC)[WIDTH_BOUNDARY],Block (*oldC)[WIDTH_BOUNDARY],NODE  *Snake, int len, int wid);
+/* 根据坐标差计算方向 */
+// enum DIRECTIONS {none,up,down,left,right};
+static enum DIRECTIONS delta2dir(int di, int dj);
+
+/*
+* 根据snapshotPos和snapshotCnt清空旧链表（将其对应block设置为空），先保存旧状态，再把新状态设置为空
+* @param snapshotPos,旧蛇下标信息
+* @param snapshotCnt,旧蛇数量
+* @param newContainer,新状态
+* @param oldContainer,旧状态
+* @return int 1为成功，0为失败
+*/
+extern int clear_old_Snake(Coordinate *snapshotPos,int snapshotCnt,Block (*newContainer)[WIDTH_BOUNDARY], Block (*oldContainer)[WIDTH_BOUNDARY]);
+
+/*
+* 根据Snake来重新绘制蛇，包括蛇头，蛇尾，蛇方向,蛇的方向，这几个方向是使用下标计算出来的
+* @param Snake,新蛇链表
+* @param newContainer,新状态
+* @param oldContainer,旧状态
+* @return int 1为成功，0为失败
+*/
+extern int paint_new_Snake(NODE *Snake,Block (*newContainer)[WIDTH_BOUNDARY],int dir);
 #endif //_SNAKE_H

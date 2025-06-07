@@ -18,11 +18,13 @@
 #define NUM_FOOD 4    //食物类别个数
 #define NUM_OBSTACLE 2    //障碍物类别个数
 
+#define MAX_SNAKE WIDTH_BOUNDARY*LENTH_BOUNDARY  //定义蛇的最大长度
+
 // 定义图标显示
 // 蛇头0，对应上0，下1，左2，右3
 extern const char snake_head_icon[4][9];
 // 蛇中1，对应上0，下1，左2，右3
-extern const char snake_middle_icon[4][9];
+extern const char snake_middle_icon[8][9];
 // 蛇尾2，对应上0，下1，左2，右3
 extern const char snake_tail_icon[4][9];
 // 食物，不定义方向
@@ -34,7 +36,13 @@ extern const char boundary_icon[2][9];
 #define BLOCK_SIZE 3  //定义每个块的大小
 
 enum BLOCK_TYPES {empty,snake,food,obstacle,boundary}; //定义块类型
-enum DIRECTIONS {none,up,down,left,right}; //定义方向
+ /* 拐角：用组合( prevDir , nextDir ) 判断四种转弯 */
+        /* 这里把 dir 当成“拐角编号”留给渲染层 */
+        /*             up->right  5
+           5 6 7 8 →   right->down 6
+                       down->left  7
+                       left->up    8        */
+enum DIRECTIONS {none,up,down,left,right,corner0,corner1,corner2,corner3}; //定义方向和拐角
 
 //定义块结构体
 typedef struct

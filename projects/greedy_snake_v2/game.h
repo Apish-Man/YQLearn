@@ -36,19 +36,11 @@ extern int init_game(WINDOW *win,Block (*newContainer)[WIDTH_BOUNDARY],Block (*o
 extern int updateContainer(Block (*newContainer)[WIDTH_BOUNDARY],Block (*oldContainer)[WIDTH_BOUNDARY], int len,int wid,NODE** Snake,NODE** Food,NODE** Obstacle,int press_dir);
 
 /*
-* 沿当前方向向前走，走的步数为1步
-* 更新container和三个链表的状态，若吃到东西，撞到障碍物，碰到自身，走到空格
-* 如果游戏结束，返回-1，如果未结束，返回1，如果运行出错，返回0
-*/
-extern int go_straight_none(Block (*newContainer)[WIDTH_BOUNDARY],Block (*oldContainer)[WIDTH_BOUNDARY], int len,int wid,NODE** Snake,NODE** Food,NODE** Obstacle);
-
-/*
-* 沿输入方向向前走，走的步数为1步
-* 更新container和三个链表的状态，若吃到东西，撞到障碍物，碰到自身，走到空格
-* 如果游戏结束，返回-1，如果未结束，返回1，如果运行出错，返回0
-*/
-extern int go_base_press(Block (*newContainer)[WIDTH_BOUNDARY], Block (*oldContainer)[WIDTH_BOUNDARY], int len, int wid, NODE **Snake, NODE **Food, NODE **Obstacle,int press_dir);
-
+ * 沿给定方向向前走，走的步数为1步
+ * 更新container和三个链表的状态，若吃到东西，撞到障碍物，碰到自身，走到空格
+ * 如果游戏结束，返回-1障碍物，-2边界，-3咬到自身，如果未结束，返回1，如果运行出错，返回0
+ */
+extern int go_next_one(Block (*newContainer)[WIDTH_BOUNDARY], Block (*oldContainer)[WIDTH_BOUNDARY], int len, int wid, NODE **Snake, NODE **Food, NODE **Obstacle,int press_dir);
 
 
 #endif //_GAME_H

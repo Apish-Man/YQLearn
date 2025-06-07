@@ -112,166 +112,158 @@ NODE *createSnakeNode(Block (*newcontainer)[WIDTH_BOUNDARY], int rows, int cols)
   return snake;
 }
 
-// 根据链表更新container
-// newNode  oldHead  node node ...  tail  head
-// p        q                       p     q
-// 先保存p的block状态，再每次把q的block状态复制到p,直到q为NULL，然后把p的block设置为空
-// 不需要修改Snake，故使用NODE*
-// 成功返回0，失败返回-1
-int updateContainerOnSnake(Block (*newC)[WIDTH_BOUNDARY], Block (*oldC)[WIDTH_BOUNDARY], int len, int wid, NODE *Snake)
+/*
+ * 根据Snake来重新绘制蛇，包括蛇头，蛇尾，蛇方向,蛇的方向，这几个方向是使用下标计算出来的
+ * @param Snake,新蛇链表
+ * @param newContainer,新状态
+ * @param oldContainer,旧状态
+ * @return int 1为成功，0为失败
+ */
+int paint_new_Snake(NODE *Snake, Block (*newContainer)[WIDTH_BOUNDARY], int dir)
 {
   if (!Snake)
-    return -1;
-  // 头插法需要在这里设置好头节点方向
-  int current_i=Snake->data.i,current_j=Snake->data.j;
-  int next_i=Snake->next->data.i,next_j=Snake->next->data.j;
-  oldC[current_i][current_j]=newC[current_i][current_j];
-  newC[current_i][current_j].dir=newC[next_i][next_j].dir;
-  paint_snake(newC, oldC, Snake, len, wid);
-  return 0;
-}
+    return 0;
+  // 获取链表长度
+  int len = 1;
+  for (NODE *n=Snake; ; n=n->next, ++len)
+      if (n->next == Snake) break;
 
-// int updateContainerOnSnake(Block (*newContainer)[WIDTH_BOUNDARY], Block (*oldContainer)[WIDTH_BOUNDARY], int len, int wid, NODE *Snake)
-// {
-//   // 空
-//   if (Snake == NULL)
-//     return 0;
-//   // 只有一个节点---这个不可能，因为只有一个节点意味着原来没有节点，此时已经结束了游戏
-//   if (Snake->next == Snake)
-//   {
-//     return -1;
-//   }
-
-//   // 不止一个节点
-//   // 从尾部开始处理，确保每个节点继承前驱节点的方向
-//   NODE *p = Snake, *q = p->next;
-//   while (q != Snake)
-//   {
-//     int p_i = p->data.i, p_j = p->data.j;
-//     int q_i = q->data.i, q_j = q->data.j;
-//     // 存储旧状态
-//     oldContainer[p_i][p_j] = newContainer[p_i][p_j];
-//     // q的block状态复制到p
-//     newContainer[p_i][p_j] = newContainer[q_i][q_j];
-//     // 计算p的top_left_x,top_left_y
-//     newContainer[p_i][p_j].top_left_y = p_i * BLOCK_SIZE;
-//     newContainer[p_i][p_j].top_left_x = p_j * BLOCK_SIZE;
-//     // 更新q，q
-//     p = q;
-//     q = q->next;
-//   }
-//   // 最后处理
-
-//   return 0;
-// }
-
-// 根据链表和输入方向更新container
-//  Head  node node ...  noed  tail
-//  p       q              p     q
-// 从尾部开始遍历，q指向尾部，p指向q的前驱
-// 每次更新时，先把q的块设置为空块，然后把p的i,j复制给p；直到q=head，结束，此时，更新q的坐标
-// 不需要修改Snake，故使用NODE*
-// 成功返回0，失败返回-1
-int updateContainerOnSnakeDir(Block (*newC)[WIDTH_BOUNDARY],
-                              Block (*oldC)[WIDTH_BOUNDARY],
-                              int len, int wid,
-                              NODE **Snake, int dir,
-                              int next_i, int next_j)
-{
-  if (!(*Snake) || (*Snake)->next == *Snake)
-    return -1;
-
-  /* 1. 从尾到头依次把坐标前移 */
-  NODE *tail = (*Snake)->prev;
-  tail->data = (*Snake)->data; // 先让尾巴追到旧头
-  for (NODE *cur = tail->prev; cur != tail; cur = cur->prev)
-    cur->data = cur->prev->data; // 依次前移
-
-  /* 2. 设置新头坐标 & 方向 */
-  (*Snake)->data.i = next_i;
-  (*Snake)->data.j = next_j;
-  newC[next_i][next_j].dir = dir; // 头朝向，用于绘图
-
-  /* 3. 重新刷整条蛇 */
-  paint_snake(newC, oldC, *Snake, len, wid);
-  return 0;
-}
-
-// int updateContainerOnSnakeDir(Block (*newContainer)[WIDTH_BOUNDARY], Block (*oldContainer)[WIDTH_BOUNDARY], int len, int wid, NODE **Snake, int dir,int next_i,int next_j) {
-//   // 为空或者只有一个节点
-//     if (!(*Snake) || (*Snake)->next == Snake) return -1;
-
-//     // 从尾部开始处理，确保每个节点继承前驱节点的方向
-//     NODE *current = (*Snake)->prev; // 从尾部开始
-//     while (current != (*Snake)) {   // 遍历到头部停止
-//         NODE *prev_node = current->prev;
-//         int curr_i = current->data.i, curr_j = current->data.j;
-//         int prev_i = prev_node->data.i, prev_j = prev_node->data.j;
-
-//         // 更新链表，current的下标变为pre
-//         current->data.i=prev_i;
-//         current->data.j=prev_j;
-
-//         // 更新container
-//         // 保存旧状态
-//         oldContainer[curr_i][curr_j] = newContainer[curr_i][curr_j];
-//         if(current==(*Snake)->prev)
-//         {
-//           // 若当前节点是最后一个节点，需要把container置为空
-//           newContainer[curr_i][curr_j] = (Block){
-//             .type = empty,
-//             .type_index = -1,
-//             .dir = none,
-//             .color = 0,
-//             .top_left_x = newContainer[curr_i][curr_j].top_left_x,
-//             .top_left_y = newContainer[curr_i][curr_j].top_left_y};
-//         }
-//         // 更新curr_i和curr_j
-//           // 继承前驱节点的状态和方向
-//           newContainer[prev_i][prev_j] = newContainer[prev_i][prev_j];
-//           newContainer[curr_i][curr_j].top_left_x = curr_j * BLOCK_SIZE;
-//           newContainer[curr_i][curr_j].top_left_y = curr_i * BLOCK_SIZE;
-
-//         current = prev_node;
-//     }
-
-//     // 单独处理头节点的新方向
-//     current->data.i=next_i,current->data.j=next_j;
-
-//     return 0;
-// }
-
-/* 辅助：根据整条蛇重新刷 container */
-/* ---------- 刷新整条蛇到 container ---------- */
-static void paint_snake(Block (*newC)[WIDTH_BOUNDARY], Block (*oldC)[WIDTH_BOUNDARY], NODE *Snake, int len, int wid)
-{
-  /* 1. 把上一帧所有蛇块暂时记入 oldC，并清空 newC 中的蛇块 */
-  NODE *n = Snake;
-  if (!n)
-    return;
-  do
-  {
-    int i = n->data.i, j = n->data.j;
-    oldC[i][j] = newC[i][j];
-    newC[i][j].type = empty; // 先清空，稍后再重画
-  } while ((n = n->next) != Snake);
-
-  /* 2. 重新遍历，为新位置写入 block */
-  n = Snake;
+  // 第二次遍历，写入block
   int idx = 0;
-  do
+  for (NODE *n = Snake;; n = n->next, idx++)
   {
     int i = n->data.i, j = n->data.j;
-    newC[i][j].type = snake;
-    newC[i][j].type_index =
-        (idx == 0) ? 0 : /* 头  */
-            (n->next == Snake) ? 2
-                               : 1;              /* 尾 : 中间 */
-    newC[i][j].dir = (idx == 0) ? newC[i][j].dir /* 头朝向已在外层设置 */
-                                : newC[n->prev->data.i][n->prev->data.j].dir;
-    newC[i][j].color = 0; /* 颜色你可以自定 */
-    newC[i][j].top_left_x = j * BLOCK_SIZE;
-    newC[i][j].top_left_y = i * BLOCK_SIZE;
-    idx++;
-  } while ((n = n->next) != Snake);
+    Block *b = &newContainer[i][j];
+    // 公共内容
+    b->type = snake;
+    b->top_left_x = j * BLOCK_SIZE;
+    b->top_left_y = i * BLOCK_SIZE;
+
+    // 判断头/尾/身
+    if (idx == 0)
+    {
+      // 头
+      b->type_index = 0;
+      b->dir = dir;
+    }
+    else if (idx == len - 1)
+    {
+      // 尾
+      b->type_index = 2;
+      int di = n->prev->data.i - i;
+      int dj = n->prev->data.j - j;
+      b->dir = delta2dir(di, dj);
+    }
+    else
+    {
+      // 身体
+      b->type_index = 1;
+      // 取前后方向，决定是直线还是拐弯
+      int dpi = n->prev->data.i - i;
+      int dpj = n->prev->data.j - j;
+      int dni = i-n->next->data.i;
+      int dnj = j-n->next->data.j;
+
+      // 获取前后节点方向
+      enum DIRECTIONS prevDir = delta2dir(dpi, dpj);
+      enum DIRECTIONS nextDir = delta2dir(dni, dnj);
+
+      if (prevDir == nextDir)
+      {
+        /* 直线：dir 决定用横还是竖贴图 */
+        b->dir = prevDir; /* up/down=竖，left/right=横 */
+      }
+      else
+      {
+        /* 拐角：用组合( prevDir , nextDir ) 判断四种转弯 */
+        /* 这里把 dir 当成“拐角编号”留给渲染层 */
+        /*             up->right  0
+           0 1 2 3 →   right->down 1
+                       down->left  2
+                       left->up    3          */
+        enum DIRECTIONS corner =
+            (prevDir == right && nextDir == down) || (prevDir == up && nextDir == left) ? corner0 : 
+            (prevDir == down && nextDir == left) || (prevDir == right && nextDir == up) ? corner1 :
+            (prevDir == left && nextDir == up) || (prevDir == down && nextDir == right)     ? corner2: corner3;
+        b->dir = corner;
+      }
+    }
+    if (n->next == Snake) break;
+  }
+  return 1;
+}
+
+/* 根据坐标差计算方向 */
+// enum DIRECTIONS {none,up,down,left,right};
+static enum DIRECTIONS delta2dir(int di, int dj)
+{
+  if (di == -1)
+    return up; // 行号减一 ⇒ 向上
+  if (di == 1)
+    return down; // 行号加一 ⇒ 向下
+  if (dj == -1)
+    return left; // 列号减一 ⇒ 向左
+  return right;  // dj == +1  ⇒ 向右
+}
+
+/*
+ * 统计Snake链表的下标，并且存储到snapshotPos，统计其个数，记入snapshotCnt
+ * @param Snake,蛇链表
+ * @param snapshotPos,暂存位置数组
+ * @param snapshotCnt,记录旧链表长度
+ * @return int 1为成功，0为失败
+ */
+int snapshot_old_snake(NODE *Snake, Coordinate *snapshotPos, int *snapshotCnt)
+{
+  NODE *p = Snake;
+  int cnt = 0;
+  if (p == NULL)
+  {
+    *snapshotCnt = cnt;
+    return 1;
+  }
+  if (p->next == Snake)
+  {
+    cnt = 1;
+    *snapshotCnt = cnt;
+    return 1;
+  }
+
+  do{
+    int p_i = p->data.i, p_j = p->data.j;
+    snapshotPos[cnt] = (Coordinate){p_i, p_j};
+    cnt++;
+    p=p->next;
+  }while(p != Snake);
+  *snapshotCnt = cnt;
+  return 1;
+}
+
+/*
+ * 根据snapshotPos和snapshotCnt清空旧链表（将其对应block设置为空），先保存旧状态，再把新状态设置为空
+ * @param snapshotPos,旧蛇下标信息
+ * @param snapshotCnt,旧蛇数量
+ * @param newContainer,新状态
+ * @param oldContainer,旧状态
+ * @return int 1为成功，0为失败
+ */
+int clear_old_Snake(Coordinate *snapshotPos, int snapshotCnt, Block (*newContainer)[WIDTH_BOUNDARY], Block (*oldContainer)[WIDTH_BOUNDARY])
+{
+  if (snapshotCnt == 0)
+  {
+    return 0;
+  }
+  for (int i = 0; i < snapshotCnt; i++)
+  {
+    int snake_i = snapshotPos[i].i, snake_j = snapshotPos[i].j;
+    oldContainer[snake_i][snake_j] = newContainer[snake_i][snake_j];
+    newContainer[snake_i][snake_j] = (Block){
+        .type = empty,
+        .type_index = -1,
+        .dir = none,
+        .color = 0,
+        .top_left_x = newContainer[snake_i][snake_j].top_left_x,
+        .top_left_y = newContainer[snake_i][snake_j].top_left_y};
+  }
+  return 1;
 }
