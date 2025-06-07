@@ -245,6 +245,25 @@ void dclist_showAll(const NODE *head)
 }
 
 /**
+ * 获取链表长度
+ * @param head：待操作的链表
+ */
+int dclist_len(const NODE *head)
+{
+  const NODE *p = head;
+  int ans=0;
+
+  while(p)
+  {
+    ans++;;
+    p = p->next;
+    // 循环链表，考虑出口
+    if (p == head) break; 
+  }
+  return ans;
+}
+
+/**
  * 根据data查找对应的节点
  * @param head：待操作的链表
  * @param data：待查询的节点数据

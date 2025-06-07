@@ -17,7 +17,6 @@
  */
 NODE *init_obstacle(Block (*newcontainer)[WIDTH_BOUNDARY], Block (*oldcontainer)[WIDTH_BOUNDARY], int len, int wid, int num)
 {
-  srand(time(NULL));
   // 创建第一个节点
   NODE *obstacle = createObstacleNode(newcontainer, len, wid);
   if (!obstacle)
@@ -54,7 +53,6 @@ NODE *init_obstacle(Block (*newcontainer)[WIDTH_BOUNDARY], Block (*oldcontainer)
 // 创建节点
 NODE *createObstacleNode(Block (*newcontainer)[WIDTH_BOUNDARY], int len, int wid)
 {
-  srand(time(NULL));
   // 创建头结点
   NODE *obstacle = (NODE *)malloc(sizeof(NODE));
   if (!obstacle)

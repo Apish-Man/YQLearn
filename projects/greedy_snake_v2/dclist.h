@@ -71,6 +71,12 @@ extern void dclist_showInWindow(WINDOW *win, const NODE *head, const char *title
 extern void dclist_showAll(const NODE *head);
 
 /**
+ * 获取链表长度
+ * @param head：待操作的链表
+ */
+extern int dclist_len(const NODE *head);
+
+/**
  * 根据old修改对应节点数据为newdata
  * @param head：待操作的链表
  * @param old：待修改的目标节点数据

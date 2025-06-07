@@ -16,7 +16,6 @@
  */
 NODE *init_snake(Block (*newcontainer)[WIDTH_BOUNDARY], Block (*oldcontainer)[WIDTH_BOUNDARY], int len, int wid)
 {
-  srand(time(NULL));
   // 创建头结点
   NODE *snake = createSnakeNode(newcontainer, len, wid);
   if (!snake)
