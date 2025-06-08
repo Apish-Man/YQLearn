@@ -50,6 +50,13 @@ int gc_reset(GameContext *ctx)
       initEmptyContainer(ctx->oldC, ctx->len, ctx->wid,ctx->origin_x,ctx->origin_y);
 
     // 初始化链表
+    if(ctx->status!=INIT)
+    {
+      // 释放旧链表
+      dclist_destroy(&ctx->Snake);
+      dclist_destroy(&ctx->Food);
+      dclist_destroy(&ctx->Obstacle);
+    }
     ctx->Snake = init_snake(ctx->newC,ctx->oldC, ctx->len, ctx->wid);
     ctx->Food = init_food(ctx->newC,ctx->oldC, ctx->len, ctx->wid, NUM_INIT_FOOD);
     ctx->Obstacle = init_obstacle(ctx->newC,ctx->oldC, ctx->len, ctx->wid, NUM_INIT_ONSTACLE);
@@ -102,11 +109,12 @@ int gc_handle_input(GameContext *ctx, int ch)
             break;
         default:
             if (ctx->gstate == RUNNING) {
+                // 忽略与当前方向相同的按键，不允许180°反向
                 switch(ch) {
-                    case 'w': ctx->press_dir = up; break;
-                    case 's': ctx->press_dir = down; break;
-                    case 'a': ctx->press_dir = left; break;
-                    case 'd': ctx->press_dir = right; break;
+                    case 'w':case 'W': ctx->press_dir = up; break;
+                    case 's':case 'S': ctx->press_dir = down; break;
+                    case 'a':case 'A': ctx->press_dir = left; break;
+                    case 'd':case 'D': ctx->press_dir = right; break;
                 }
             }
             break;
@@ -124,6 +132,11 @@ int gc_tick_logic(GameContext *ctx)
     if (ctx->gstate != RUNNING) return 1;
 
     // 沿给定方向或者默认方向前进，并且更新状态
+    // 此处需要屏蔽180°反转
+    int i=ctx->Snake->data.i,j=ctx->Snake->data.j;
+    int last_dir=ctx->newC[i][j].dir,next_dir=ctx->press_dir;
+    if((last_dir==1&&next_dir==2)||(last_dir==2&&next_dir==1)||(last_dir==3&&next_dir==4)||(last_dir==4&&next_dir==3))  ctx->press_dir=last_dir;
+
     ctx->status = go_next_one(ctx);
 
     if (ctx->status != 1) {
@@ -131,6 +144,7 @@ int gc_tick_logic(GameContext *ctx)
     } else {
         ctx->score = dclist_len(ctx->Snake);
     }
+    return 1;
 }
 
 /*
@@ -140,7 +154,6 @@ int gc_tick_logic(GameContext *ctx)
  */
 int go_next_one(GameContext *ctx)
 {
-  // Block (*newContainer)[WIDTH_BOUNDARY], Block (*oldContainer)[WIDTH_BOUNDARY], int len, int wid, NODE **Snake, NODE **Food, NODE **Obstacle,int press_dir
   if (ctx->Snake== NULL)
   {
     return 0;
