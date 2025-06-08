@@ -63,10 +63,10 @@ int main(int argc, char *argv[])
     int left = 3;         /* 行起始（列用 margin） */
     const int margin = 2; /* 靠左缩进 2 格，看着不贴边 */
     mvwprintw(menu_win, left + 0, margin, "1. single-player game");
-    mvwprintw(menu_win, left + 1, margin, "2. Create a room");
-    mvwprintw(menu_win, left + 2, margin, "3. Join a room");
-    mvwprintw(menu_win, left + 3, margin, "4. View the Leaderboard");
-    mvwprintw(menu_win, left + 4, margin, "5. Quit");
+    // mvwprintw(menu_win, left + 1, margin, "2. Create a room");
+    // mvwprintw(menu_win, left + 2, margin, "3. Join a room");
+    mvwprintw(menu_win, left + 1, margin, "4. View the Leaderboard");
+    mvwprintw(menu_win, left + 2, margin, "5. Quit");
 
     /* —— “Select please:” 提示 —— */
     wattron(menu_win, COLOR_PAIR(2));
@@ -182,10 +182,6 @@ int main(int argc, char *argv[])
       refresh();                                /* 避免菜单与旧界面重叠 */
     }
     break;
-    case '2': /* TODO 创建房间 */
-      break;
-    case '3': /* TODO 加入房间 */
-      break;
     case '4':
     { /* 只浏览排行榜 */
       ScoreEntry *arr;
