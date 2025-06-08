@@ -18,15 +18,21 @@ int  gc_init  (GameContext *ctx, int origin_x, int origin_y)
   // 初始化长宽
     ctx->len = LENTH_BOUNDARY;
     ctx->wid = WIDTH_BOUNDARY;
-    ctx->win_game = newwin(ctx->len*BLOCK_SIZE, ctx->wid*BLOCK_SIZE, origin_x, origin_y);
+    ctx->win_game = newwin(ctx->len*BLOCK_SIZE, ctx->wid*BLOCK_SIZE, origin_y, origin_x);
     ctx->win_status = newwin(3, ctx->wid*BLOCK_SIZE, origin_x + ctx->len*BLOCK_SIZE, origin_y);
     ctx->win_debug = newwin(3, ctx->wid*BLOCK_SIZE, origin_x + ctx->len*BLOCK_SIZE + 4, origin_y);
     ctx->origin_x=origin_x;
     ctx->origin_y=origin_y;
 
+    int board_w = 20;                    /* 排行榜栏固定宽度 */
+    ctx->win_board  = newwin(ctx->len*BLOCK_SIZE,board_w,origin_y,origin_x + ctx->wid*BLOCK_SIZE + 1);
+
+
     ctx->press_dir = none;
     ctx->score = 0;
+    ctx->last_saved_score=-1;
     ctx->status=INIT;
+    ctx->player_name[0]='\0';
 
     ctx->Snake=NULL;
     ctx->Food=NULL;
@@ -79,6 +85,9 @@ int gc_reset(GameContext *ctx)
  */
 int gc_destroy(GameContext *ctx)
 {
+
+  // 退出前写入数据
+  score_append(ctx->player_name, ctx->score);
     dclist_destroy(&ctx->Snake);
     dclist_destroy(&ctx->Food);
     dclist_destroy(&ctx->Obstacle);
@@ -86,6 +95,7 @@ int gc_destroy(GameContext *ctx)
     delwin(ctx->win_game);
     delwin(ctx->win_status);
     delwin(ctx->win_debug);
+    delwin(ctx->win_board);
 
     return 1;
 }
@@ -98,14 +108,18 @@ int gc_destroy(GameContext *ctx)
 int gc_handle_input(GameContext *ctx, int ch)
 {
     switch (ch) {
-        case 'q': case 'Q': endwin(); exit(0);
+        // case 'q': case 'Q': endwin(); exit(0);
         case ' ': if (ctx->gstate == READY) ctx->gstate = RUNNING; break;
         case 'p': case 'P':
             if (ctx->gstate == RUNNING) ctx->gstate = PAUSED;
             else if (ctx->gstate == PAUSED) ctx->gstate = RUNNING;
             break;
         case 'r': case 'R':
-            if (ctx->gstate == GAME_OVER) gc_reset(ctx);
+            if (ctx->gstate == GAME_OVER) 
+            {
+              score_append(ctx->player_name, ctx->score);
+              gc_reset(ctx);
+            }
             break;
         default:
             if (ctx->gstate == RUNNING) {
@@ -143,6 +157,12 @@ int gc_tick_logic(GameContext *ctx)
         ctx->gstate = GAME_OVER;
     } else {
         ctx->score = dclist_len(ctx->Snake);
+        // 更新当前排行榜，实现每吃一次，排行榜都会更新一次
+        if (ctx->score != ctx->last_saved_score) 
+        {     
+            score_append(ctx->player_name, ctx->score); 
+            ctx->last_saved_score = ctx->score;
+        }
     }
     return 1;
 }
@@ -269,22 +289,77 @@ int gc_tick_render(GameContext *ctx)
     werase(ctx->win_status);
     // 绘制边框
     box(ctx->win_status, 0, 0);
+    char msg[64]="";
     switch(ctx->gstate) {
         case READY:
-            mvwprintw(ctx->win_status,1,2,"Press SPACE to Start");
+            strcpy(msg,"Press SPACE to Start");
             break;
         case RUNNING:
-            mvwprintw(ctx->win_status,1,2,"Score: %ld  P:Pause Q:Quit", ctx->score);
+            sprintf(msg,"Score: %ld  P:Pause Q:Quit", ctx->score);
             break;
         case PAUSED:
-            mvwprintw(ctx->win_status,1,2,"Paused. P:Resume Q:Quit");
+            strcpy(msg,"Paused. P:Resume Q:Quit");
             break;
         case GAME_OVER:
-            mvwprintw(ctx->win_status,1,2,"Game Over! Score:%ld R:Restart Q:Quit", ctx->score);
+            sprintf(msg,"Game Over! Score:%ld R:Restart Q:Quit", ctx->score);
             break;
     }
+    // 统一居中打印信息
+    int max_y,max_x;
+    getmaxyx(ctx->win_status,max_y,max_x);
+    int x=(max_x-(int)strlen(msg))/2;
+    mvwprintw(ctx->win_status,1,x<0?0:x,"%s",msg);
+
     // 刷新窗口
     wrefresh(ctx->win_status);
+
+    // 绘制排行榜
+    draw_board(ctx);
     return 1;
 }
 
+/*
+ * 绘制排行榜
+ * 绘制失败返回0，成功返回1
+ */
+int draw_board(GameContext *ctx){
+    // 清空屏幕
+    werase(ctx->win_board); 
+    // 设置边框
+    box(ctx->win_board,0,0);
+    // 写入标题
+    mvwprintw(ctx->win_board,1,2," LEADER BOARD ");
+    // 加载排行榜数据
+    ScoreEntry *arr; int n;
+    if(!score_load(&arr,&n))
+    { 
+      mvwprintw(ctx->win_board,2,2,"(empty)"); 
+      wrefresh(ctx->win_board); return 1; 
+    }
+
+    // char line[64]; 
+    // 显示数据
+    for(int i=0;i<n && i<10;i++){             /* 只显示前 10 */
+        mvwprintw(ctx->win_board,3+i,2,"No%2d: %-5s %3ld",i+1,arr[i].name,arr[i].score);
+        // snprintf(line, sizeof(line), "NO%2d. %-12s %5ld",i + 1, arr[i].name, arr[i].score);
+        // center_print(ctx->win_board, 3 + i, line);   /* 横向自动居中 */
+    }
+
+    free(arr); 
+    wrefresh(ctx->win_board);
+    return 1;
+}
+
+/* 
+* 居中打印函数
+* win为窗口
+* y为在第几行
+* text为要打印的文本内容
+*/
+void center_print(WINDOW *win, int y, const char *text)
+{
+    int max_y, max_x;
+    getmaxyx(win, max_y, max_x);
+    int x = (max_x - (int)strlen(text)) / 2;
+    mvwprintw(win, y, x < 0 ? 0 : x, "%s", text);
+}
