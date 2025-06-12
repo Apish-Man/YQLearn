@@ -12,10 +12,16 @@
 #include "block.h"
 #include "dclist.h"
 #include <ncurses.h>
+// #include <./ncurses/ncurses.h>
 #include "snake.h"
 #include "food.h"
 #include "obstacle.h"
 #include "score.h"
+#include "mynet.h"
+
+/* 头文件或顶部宏 */
+#define FRAME_USEC   (MP_TICK_MS * 1000)   /* 20 ms → 20000 µs */
+#define SNAKE_STEP_MSEC 500           /* 蛇每 500 ms 走一格 */
 
 // 定义游戏状态
 enum GAME_STATE { READY, RUNNING, PAUSED, GAME_OVER,INIT };
@@ -24,7 +30,7 @@ enum GAME_STATE { READY, RUNNING, PAUSED, GAME_OVER,INIT };
 #define NUM_INIT_FOOD 10
 
 //定义初始化时障碍物个数
-#define NUM_INIT_ONSTACLE 10
+#define NUM_INIT_ONSTACLE 3
 
 // 定义玩家昵称最大长度
 #define NAME_MAXLEN 16
@@ -44,6 +50,7 @@ typedef struct {
     NODE   *Obstacle;
 
     enum GAME_STATE gstate;  // 当前游戏状态
+    enum GAME_STATE gstate2;  // 玩家2 当前游戏状态
     int     status;          // updateGame 返回值
     int     press_dir;       // 最近一次方向键
     int     press_dir2;       // 玩家2 最近一次方向键
@@ -51,7 +58,8 @@ typedef struct {
     long    score2;           //玩家2 当前分数
     long last_saved_score;   //记录最新一次存储的分数，维护动态刷新表单，初始化-1
     char  player_name[NAME_MAXLEN];   //玩家昵称
-
+    char  player_name2[NAME_MAXLEN];   //玩家2昵称
+    long long last_step_us;  // 上次移动的时间戳（微秒）
 
     /* --- 资源 / 只读配置 --- */
     int     len, wid;        // 网格长宽（行列）
@@ -59,6 +67,7 @@ typedef struct {
     WINDOW *win_game;
     WINDOW *win_status;
     WINDOW *win_debug;
+    WINDOW *win_menu;
     WINDOW *win_board;//排行榜窗口
 
     /* --- 网络字段 --- */
@@ -77,11 +86,28 @@ typedef struct {
 extern int  gc_init  (GameContext *ctx, int origin_x, int origin_y);
 
 /*
+ * 获得服务器初始状态后，根据服务器状态进行初始化
+ * 初始化new old container,Snake Food Obstacle链表
+ * 初始化游戏状态,当前玩家状态，最后一次方向键，当前分数
+ * 初始化失败返回0，成功返回1
+ */
+extern int gc_init_client(GameContext *ctx, int origin_x, int origin_y,MPStatePkt *pkt);
+extern int gc_init_client2(GameContext *ctx, int origin_x, int origin_y);
+
+/*
  * 重置游戏状态
  * 重置new old container,Snake Food Obstacle链表
  * 初始化游戏状态,当前玩家状态，最后一次方向键，当前分数
  */
 extern int gc_reset(GameContext *ctx);
+
+/*
+ * 双人模式下重置游戏状态
+ * 重置new old container,Snake Food Obstacle链表
+ * 初始化游戏状态,当前玩家状态，最后一次方向键，当前分数
+ * 初始化失败返回0，成功返回1
+ */
+int gc_reset_double(GameContext *ctx);
 
 /*
  * 销毁上下文
@@ -99,11 +125,26 @@ extern int gc_destroy(GameContext *ctx);
 extern int gc_handle_input(GameContext *ctx, int ch);
 
 /*
+ * 输入处理_远程
+ * 根据输入字符，更新游戏状态，此处主要是更新游戏对应的结构体
+ * 初始化失败返回0，成功返回1
+ */
+extern int gc_handle_remote_input(GameContext *ctx, int ch);
+
+/*
  * 游戏逻辑推进
  * 根据输入字符，更新游戏状态，此处主要是更新游戏对应的结构体
  * 初始化失败返回0，成功返回1
  */
 extern int gc_tick_logic(GameContext *ctx);
+
+/*
+ * 游戏逻辑推进_双人
+ * 根据输入字符，更新游戏状态，此处主要是更新游戏对应的结构体
+ * 初始化失败返回0，成功返回1
+ * status为1表示未结束，小于0表示结束，-1是玩家1赢，-2玩家2赢,0表示异常结束
+ */
+extern int gc_tick_logic_double(GameContext *ctx);
 
 /*
  * 沿给定方向向前走，走的步数为1步
@@ -113,11 +154,25 @@ extern int gc_tick_logic(GameContext *ctx);
 extern int go_next_one(GameContext *ctx);
 
 /*
+ * 沿给定方向向前走，走的步数为1步
+ * 更新container和三个链表的状态，若吃到东西，撞到障碍物，碰到自身，走到空格
+ * 如果游戏结束，返回-1障碍物，-2边界，-3咬到自身,-4咬到其他蛇，如果未结束，返回1，如果运行出错，返回0
+ */
+extern int go_next_one_double(GameContext *ctx);
+
+/*
  * 渲染逻辑
  * 根据更新后的ctx，渲染数据
  * 渲染失败返回0，成功返回1
  */
 extern int gc_tick_render(GameContext *ctx);
+
+/*
+ * 渲染逻辑_客户端
+ * 根据更新后的ctx，渲染数据
+ * 渲染失败返回0，成功返回1
+ */
+extern int gc_tick_render2(GameContext *ctx);
 
 /*
  * 绘制排行榜
@@ -132,5 +187,25 @@ extern int draw_board(GameContext *ctx);
 * text为要打印的文本内容
 */
 extern void center_print(WINDOW *win, int y, const char *text);
+
+// 打包要发送的数据
+extern void gc_pack_state(GameContext *ctx,MPStatePkt* pkt);
+
+// 辅助函数：填充食物数组
+static void pack_food(NODE *food, MPPos food_pkt[]);
+
+// 辅助函数：填充障碍物数组
+static void pack_obstacle(NODE *obstacle, MPPos obstacle_pkt[]);
+
+// 辅助函数：将蛇的链表转换为MPSnake结构
+static void pack_snake(NODE *snake, MPSnake *pkt_s);
+
+// 对接收到的数据包解包
+extern void gc_unpack_state(GameContext *ctx,MPStatePkt* pkt);
+
+// 方向本质上应由 蛇头和第二节身体的位置关系 推算
+static enum DIRECTIONS head_dir(const NODE *snake);
+
+extern void render_mp_rank(GameContext *ctx);  // 渲染双人对战排行榜
 
 #endif //_GAME_CONTEXT_H

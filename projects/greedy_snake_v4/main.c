@@ -7,6 +7,7 @@
 
 #include "block.h"
 #include <ncurses.h>
+// #include <./ncurses/ncurses.h>
 #include <unistd.h>
 #include "game.h"
 #include "game_context.h"
@@ -21,9 +22,9 @@ const char snake_middle_icon[8][9] = {"|0||0||0|", "|0||0||0|", "---OOO---", "--
 // 蛇尾，对应上0，下1，左2，右3
 const char snake_tail_icon[4][9] = {"$ $$ $ $ ", " $ $ $$ $", "$$   $$$ ", " $$$   $$"};
 // 食物，对应上0，下1，左2，右3
-const char food_icon[NUM_FOOD][9] = {"****1****", "****2****", "****3****", "****4****"};
+const char food_icon[4][9] = {"****1****", "****2****", "****3****", "****4****"};
 // 障碍物，不定义方向
-const char obstacle_icon[NUM_OBSTACLE][9] = {"---|!|---", "---|^|---"};
+const char obstacle_icon[2][9] = {"---|!|---", "---|^|---"};
 // 边界，对应上下0，左右1
 const char boundary_icon[2][9] = {"=========", "|||||||||"};
 
@@ -43,7 +44,7 @@ int main(int argc, char *argv[])
     const int margin = 2; /* 靠左缩进 2 格，看着不贴边 */
     int left = 3;         /* 行起始（列用 margin） */
 
-    game_printf_menu(menu_win,win_h,win_w,margin,left);
+    menu_win=game_printf_menu(win_h,win_w,margin,left);
 
     int ch = getch();
     switch (ch)
@@ -64,26 +65,36 @@ int main(int argc, char *argv[])
     case '2': /* TODO 创建房间 */
     {
       /* 读取昵称 */
-      char name[NAME_MAXLEN] = {0};
+      char name0[NAME_MAXLEN] = {0};
 
       // 输入昵称
-      game_get_nickname(stdscr,menu_win,win_h,win_w,margin,left,name);
+      game_get_nickname(stdscr,menu_win,win_h,win_w,margin,left,name0);
 
       // 双人游戏GameContext
       GameContext ctx;
-      game_create_room(&ctx,name);
+      ctx.win_menu=menu_win;
+      game_create_room(&ctx,name0);
     }
     break;
     case '3': /* TODO 加入房间 */
+    {
       /* 读取昵称 */
-      char name[NAME_MAXLEN] = {0};
+      char name2[NAME_MAXLEN] = {0};
 
       // 输入昵称
-      game_get_nickname(stdscr,menu_win,win_h,win_w,margin,left,name);
+      game_get_nickname(stdscr,menu_win,win_h,win_w,margin,left,name2);
+
+      /* 读取op */
+      char ip[32] = {0};
+
+      // 输入昵称
+      game_get_ip(stdscr,menu_win,win_h,win_w,margin,left,ip);
 
       // 双人游戏GameContext
       GameContext ctx;
-      game_join_room(&ctx,name);
+      ctx.win_menu=menu_win;
+      game_join_room(&ctx,name2,ip);
+    }
       break;
     case '4':
     { 
@@ -95,8 +106,8 @@ int main(int argc, char *argv[])
     case '5':
       endwin();
       exit(0);
-    default:
-      break;
+    // default:
+    //   break;
     }
     delwin(menu_win); /* 把 menu_win 释放掉，避免内存泄漏 */
   }

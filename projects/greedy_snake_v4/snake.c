@@ -14,7 +14,7 @@
  * @param int len  边界长度
  * @return Snake,返回初始化蛇，return NULL表示失败
  */
-NODE *init_snake(Block (*newcontainer)[WIDTH_BOUNDARY], Block (*oldcontainer)[WIDTH_BOUNDARY], int len, int wid)
+NODE *init_snake(Block (*newcontainer)[WIDTH_BOUNDARY], Block (*oldcontainer)[WIDTH_BOUNDARY], int len, int wid,int index)
 {
   // 创建头结点
   NODE *snake = createSnakeNode(newcontainer, len, wid);
@@ -30,6 +30,7 @@ NODE *init_snake(Block (*newcontainer)[WIDTH_BOUNDARY], Block (*oldcontainer)[WI
   int tmpx = snake->data.i, tmpy = snake->data.j;
   oldcontainer[tmpx][tmpy] = newcontainer[tmpx][tmpy];
   newcontainer[tmpx][tmpy].type = 1; // snake
+  newcontainer[tmpx][tmpy].index=index;
   newcontainer[tmpx][tmpy].type_index = 0;
   // dir是方向，范围为1-4
   int dir = rand() % 4 + 1;
@@ -59,6 +60,7 @@ NODE *init_snake(Block (*newcontainer)[WIDTH_BOUNDARY], Block (*oldcontainer)[WI
   int midx = middle->data.i, midy = middle->data.j;
   oldcontainer[midx][midy] = newcontainer[midx][midy];
   newcontainer[midx][midy].type = 1; // snake
+  newcontainer[midx][midy].index=index;
   newcontainer[midx][midy].type_index = 1;
   // dir是方向，范围为0-3
   newcontainer[midx][midy].dir = dir;
@@ -81,6 +83,7 @@ NODE *init_snake(Block (*newcontainer)[WIDTH_BOUNDARY], Block (*oldcontainer)[WI
   int tailx = tail->data.i, taily = tail->data.j;
   oldcontainer[tailx][taily] = newcontainer[tailx][taily];
   newcontainer[tailx][taily].type = 1; // snake
+  newcontainer[tailx][taily].index=index;
   newcontainer[tailx][taily].type_index = 2;
   // //dir是方向，范围为0-3
   newcontainer[tailx][taily].dir = dir;
@@ -118,7 +121,7 @@ NODE *createSnakeNode(Block (*newcontainer)[WIDTH_BOUNDARY], int rows, int cols)
  * @param oldContainer,旧状态
  * @return int 1为成功，0为失败
  */
-int paint_new_Snake(NODE *Snake, Block (*newContainer)[WIDTH_BOUNDARY], int dir)
+int paint_new_Snake(NODE *Snake, Block (*newContainer)[WIDTH_BOUNDARY], int dir,int index)
 {
   if (!Snake)
     return 0;
@@ -135,6 +138,7 @@ int paint_new_Snake(NODE *Snake, Block (*newContainer)[WIDTH_BOUNDARY], int dir)
     Block *b = &newContainer[i][j];
     // 公共内容
     b->type = snake;
+    b->index = index; // 设置蛇的 index
     b->top_left_x = j * BLOCK_SIZE;
     b->top_left_y = i * BLOCK_SIZE;
 
@@ -175,7 +179,7 @@ int paint_new_Snake(NODE *Snake, Block (*newContainer)[WIDTH_BOUNDARY], int dir)
       else
       {
         /* 拐角：用组合( prevDir , nextDir ) 判断四种转弯 */
-        /* 这里把 dir 当成“拐角编号”留给渲染层 */
+        /* 这里把 dir 当成"拐角编号"留给渲染层 */
         /*             up->right  0
            0 1 2 3 →   right->down 1
                        down->left  2
@@ -194,7 +198,7 @@ int paint_new_Snake(NODE *Snake, Block (*newContainer)[WIDTH_BOUNDARY], int dir)
 
 /* 根据坐标差计算方向 */
 // enum DIRECTIONS {none,up,down,left,right};
-static enum DIRECTIONS delta2dir(int di, int dj)
+enum DIRECTIONS delta2dir(int di, int dj)
 {
   if (di == -1)
     return up; // 行号减一 ⇒ 向上
@@ -258,6 +262,7 @@ int clear_old_Snake(Coordinate *snapshotPos, int snapshotCnt, Block (*newContain
     oldContainer[snake_i][snake_j] = newContainer[snake_i][snake_j];
     newContainer[snake_i][snake_j] = (Block){
         .type = empty,
+        .index=0,
         .type_index = -1,
         .dir = none,
         .color = 0,

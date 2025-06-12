@@ -12,11 +12,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <ncurses.h>
+// #include <./ncurses/ncurses.h>
 
 #define WIDTH_BOUNDARY 60 // 边界宽度/块
 #define LENTH_BOUNDARY 15 // 边界长度/块
-#define NUM_FOOD 4    //食物类别个数
-#define NUM_OBSTACLE 2    //障碍物类别个数
+#define NUM_FOOD 1    //食物类别个数
+#define NUM_OBSTACLE 1    //障碍物类别个数
 
 #define MAX_SNAKE WIDTH_BOUNDARY*LENTH_BOUNDARY  //定义蛇的最大长度
 
@@ -28,9 +29,9 @@ extern const char snake_middle_icon[8][9];
 // 蛇尾2，对应上0，下1，左2，右3
 extern const char snake_tail_icon[4][9];
 // 食物，不定义方向
-extern const char food_icon[NUM_FOOD][9];
+extern const char food_icon[4][9];
 // 障碍物，不定义方向
-extern const char obstacle_icon[NUM_OBSTACLE][9];
+extern const char obstacle_icon[2][9];
 // 边界，对应上下0，左右1
 extern const char boundary_icon[2][9];
 #define BLOCK_SIZE 3  //定义每个块的大小
@@ -48,6 +49,7 @@ enum DIRECTIONS {none,up,down,left,right,corner0,corner1,corner2,corner3}; //定
 typedef struct
 {
   enum BLOCK_TYPES type;
+  int index;//记录是第几条蛇
   int type_index;
   enum DIRECTIONS dir;
   int color;
@@ -80,6 +82,12 @@ static int initBlock(Block* p,int x,int y);
 * 返回渲染结果
 */
 extern int renderContainer(WINDOW *win,Block (*newContainer)[WIDTH_BOUNDARY],Block (*oldContainer)[WIDTH_BOUNDARY],int len,int wid);
+
+/*
+* 清空Container内容渲
+* 返回void
+*/
+extern void clear_container(Block (*newContainer)[WIDTH_BOUNDARY],int len,int wid);
 
 // 块渲染函数
 int renderBlock(WINDOW *win,Block *bl);

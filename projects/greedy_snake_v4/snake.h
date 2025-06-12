@@ -25,9 +25,10 @@
  * @param container 网格的当前状态
  * @param int wid  边界宽度
  * @param int len  边界长度
+ * @param int index  记录第几条蛇
  * @return NODE*,返回初始化蛇，return NULL表示失败
  */
-extern NODE *init_snake(Block (*newcontainer)[WIDTH_BOUNDARY], Block (*oldcontainer)[WIDTH_BOUNDARY], int len, int wid);
+extern NODE *init_snake(Block (*newcontainer)[WIDTH_BOUNDARY], Block (*oldcontainer)[WIDTH_BOUNDARY], int len, int wid,int index);
 
 /*
  * 创建节点
@@ -46,7 +47,7 @@ extern int snapshot_old_snake(NODE *Snake,Coordinate *snapshotPos,int* snapshotC
 
 /* 根据坐标差计算方向 */
 // enum DIRECTIONS {none,up,down,left,right};
-static enum DIRECTIONS delta2dir(int di, int dj);
+extern enum DIRECTIONS delta2dir(int di, int dj);
 
 /*
 * 根据snapshotPos和snapshotCnt清空旧链表（将其对应block设置为空），先保存旧状态，再把新状态设置为空
@@ -65,5 +66,5 @@ extern int clear_old_Snake(Coordinate *snapshotPos,int snapshotCnt,Block (*newCo
 * @param oldContainer,旧状态
 * @return int 1为成功，0为失败
 */
-extern int paint_new_Snake(NODE *Snake,Block (*newContainer)[WIDTH_BOUNDARY],int dir);
+extern int paint_new_Snake(NODE *Snake,Block (*newContainer)[WIDTH_BOUNDARY],int dir,int index);
 #endif //_SNAKE_H

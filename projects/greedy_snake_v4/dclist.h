@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ncurses.h>
+// #include <./ncurses/ncurses.h>
 
 typedef struct 
 {
