@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "myqsort.h"
 
 /*
 * 成绩比较
@@ -26,7 +27,7 @@ static int cmp(const void *a,const void *b){
 */
 void score_sort(ScoreEntry *arr,int n)
 { 
-  qsort(arr,n,sizeof(ScoreEntry),cmp); 
+  quicksort(arr,n,sizeof(ScoreEntry),cmp); 
 }
 
 /*

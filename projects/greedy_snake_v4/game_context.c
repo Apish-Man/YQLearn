@@ -809,7 +809,9 @@ int draw_board(GameContext *ctx)
   // 显示数据
   for (int i = 0; i < n && i < 10; i++)
   { /* 只显示前 10 */
-    mvwprintw(ctx->win_board, 3 + i, 2, "No%2d: %-5s %3ld", i + 1, arr[i].name, arr[i].score);
+    if(strcmp(ctx->player_name,arr[i].name)==0) wattron(ctx->win_board, COLOR_PAIR(1)); // 使用红色标记自己
+      mvwprintw(ctx->win_board, 3 + i, 2, "No%2d: %-5s %3ld", i + 1, arr[i].name, arr[i].score);
+    if(strcmp(ctx->player_name,arr[i].name)==0) wattron(ctx->win_board, COLOR_PAIR(1)); wattroff(ctx->win_board, COLOR_PAIR(1));
     // snprintf(line, sizeof(line), "NO%2d. %-12s %5ld",i + 1, arr[i].name, arr[i].score);
     // center_print(ctx->win_board, 3 + i, line);   /* 横向自动居中 */
   }
